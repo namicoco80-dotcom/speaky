@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 통계</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange:#FF8C00; --orange-light:#FFB347; --orange-dark:#E07800;
+    --purple:#7C4DFF; --green:#00C07A; --green-dark:#009960;
+    --red:#FF4757; --blue:#2196F3;
+    --bg:#FFF8F0; --card:#FFFFFF; --text:#2D1B00; --text-muted:#A0876A;
+    --border:#F0E0CC; --shadow-card:0 4px 20px rgba(45,27,0,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; max-width:420px; margin:0 auto;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,179,71,0.14) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(124,77,255,0.10) 0%, transparent 40%);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    padding:52px 20px 16px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:1.5px solid var(--border);
+  }
+  .back-btn {
+    width:38px; height:38px; background:var(--card); border:none;
+    border-radius:12px; box-shadow:var(--shadow-card); font-size:18px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform 0.15s; flex-shrink:0;
+  }
+  .back-btn:active { transform:scale(0.9); }
+  .header-title {
+    font-family:'Baloo 2',cursive; font-size:22px; font-weight:800;
+    color:var(--orange); text-shadow:0 2px 0 var(--orange-dark);
+  }
+
+  /* ── SCROLL BODY ── */
+  .scroll-body { position:relative; z-index:1; padding:0 0 100px; }
+
+  /* ── STREAK HERO ── */
+  .streak-hero {
+    margin:20px 20px 0;
+    background:linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-radius:22px; padding:22px 24px;
+    box-shadow:0 6px 0 var(--orange-dark), 0 10px 24px rgba(255,140,0,0.3);
+    position:relative; overflow:hidden;
+    animation:slideUp 0.5s ease both;
+  }
+  .streak-hero::after {
+    content:'🔥'; position:absolute; right:20px; top:50%;
+    transform:translateY(-50%); font-size:64px; opacity:0.2;
+  }
+  .streak-label { font-size:12px; font-weight:800; color:rgba(255,255,255,0.8); letter-spacing:0.8px; }
+  .streak-num {
+    font-family:'Baloo 2',cursive; font-size:52px; font-weight:800;
+    color:white; line-height:1; text-shadow:0 3px 0 rgba(0,0,0,0.15);
+  }
+  .streak-unit { font-size:16px; font-weight:800; color:rgba(255,255,255,0.9); margin-top:2px; }
+  .streak-best {
+    display:inline-block; margin-top:10px;
+    background:rgba(255,255,255,0.22); border-radius:10px;
+    padding:5px 12px; font-size:12px; font-weight:800; color:white;
+  }
+
+  /* ── 4 BIG STATS ── */
+  .big-stats {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:10px; margin:14px 20px 0;
+    animation:slideUp 0.5s 0.1s ease both;
+  }
+  .big-stat {
+    background:var(--card); border-radius:18px; padding:18px 16px;
+    box-shadow:var(--shadow-card); border-top:3px solid transparent;
+  }
+  .big-stat.orange { border-top-color:var(--orange); }
+  .big-stat.purple { border-top-color:var(--purple); }
+  .big-stat.green  { border-top-color:var(--green); }
+  .big-stat.blue   { border-top-color:var(--blue); }
+  .big-stat-icon { font-size:24px; margin-bottom:8px; display:block; }
+  .big-stat-num {
+    font-family:'Baloo 2',cursive; font-size:28px; font-weight:800; line-height:1;
+  }
+  .big-stat.orange .big-stat-num { color:var(--orange); }
+  .big-stat.purple .big-stat-num { color:var(--purple); }
+  .big-stat.green  .big-stat-num { color:var(--green); }
+  .big-stat.blue   .big-stat-num { color:var(--blue); }
+  .big-stat-label { font-size:11px; color:var(--text-muted); font-weight:700; margin-top:3px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family:'Baloo 2',cursive; font-size:17px; font-weight:800; color:var(--text);
+    padding:22px 20px 10px; display:flex; align-items:center; gap:6px;
+  }
+
+  /* ── PROGRESS CARD ── */
+  .progress-card {
+    margin:0 20px; background:var(--card);
+    border-radius:20px; padding:20px;
+    box-shadow:var(--shadow-card);
+    animation:slideUp 0.5s 0.2s ease both;
+  }
+  .prog-row { margin-bottom:14px; }
+  .prog-row:last-child { margin-bottom:0; }
+  .prog-label {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:6px;
+  }
+  .prog-name { font-size:13px; font-weight:800; color:var(--text); }
+  .prog-val  { font-size:12px; font-weight:800; color:var(--text-muted); }
+  .prog-bar-wrap {
+    height:10px; background:#F0E0CC; border-radius:10px; overflow:hidden;
+  }
+  .prog-bar-fill {
+    height:100%; border-radius:10px;
+    transition:width 1s ease; width:0%;
+  }
+  .prog-bar-fill.orange { background:linear-gradient(90deg,var(--orange),var(--orange-light)); }
+  .prog-bar-fill.purple { background:linear-gradient(90deg,var(--purple),#B388FF); }
+  .prog-bar-fill.green  { background:linear-gradient(90deg,var(--green),#69F0AE); }
+
+  /* ── WEEKLY CHART ── */
+  .week-card {
+    margin:0 20px; background:var(--card);
+    border-radius:20px; padding:20px;
+    box-shadow:var(--shadow-card);
+    animation:slideUp 0.5s 0.25s ease both;
+  }
+  .week-grid {
+    display:flex; gap:6px; align-items:flex-end;
+    height:80px; margin-top:12px;
+  }
+  .week-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .week-bar-wrap { flex:1; width:100%; display:flex; align-items:flex-end; }
+  .week-bar {
+    width:100%; border-radius:6px 6px 0 0;
+    background:linear-gradient(to top, var(--orange), var(--orange-light));
+    min-height:4px; transition:height 0.8s ease;
+  }
+  .week-bar.today { background:linear-gradient(to top, var(--purple), #B388FF); }
+  .week-day { font-size:10px; font-weight:800; color:var(--text-muted); }
+  .week-num { font-size:10px; font-weight:800; color:var(--orange); }
+  .week-num.today { color:var(--purple); }
+
+  /* ── QUIZ HISTORY ── */
+  .history-card {
+    margin:0 20px; background:var(--card);
+    border-radius:20px; padding:20px;
+    box-shadow:var(--shadow-card);
+    animation:slideUp 0.5s 0.3s ease both;
+  }
+  .history-item {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 0; border-bottom:1.5px solid var(--border);
+  }
+  .history-item:last-child { border-bottom:none; }
+  .history-icon {
+    width:38px; height:38px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    flex-shrink:0;
+  }
+  .history-icon.correct { background:#E8FFF4; }
+  .history-icon.wrong   { background:#FFF0F2; }
+  .history-body { flex:1; }
+  .history-quiz { font-size:13px; font-weight:800; color:var(--text); }
+  .history-time { font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+  .history-score {
+    font-family:'Baloo 2',cursive; font-size:15px; font-weight:800;
+  }
+  .history-score.high { color:var(--green); }
+  .history-score.mid  { color:var(--orange); }
+  .history-score.low  { color:var(--red); }
+
+  /* ── ACHIEVEMENT ── */
+  .achieve-grid {
+    display:grid; grid-template-columns:1fr 1fr 1fr;
+    gap:10px; margin:0 20px;
+    animation:slideUp 0.5s 0.35s ease both;
+  }
+  .achieve-item {
+    background:var(--card); border-radius:16px; padding:14px 10px;
+    text-align:center; box-shadow:var(--shadow-card);
+  }
+  .achieve-item.locked { opacity:0.4; filter:grayscale(0.5); }
+  .achieve-icon { font-size:28px; margin-bottom:6px; }
+  .achieve-name { font-size:10px; font-weight:800; color:var(--text); line-height:1.3; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:420px; background:white;
+    border-top:1.5px solid #F5E8D8;
+    display:flex; padding:10px 0 24px; z-index:30;
+  }
+  .nav-item {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; gap:3px; cursor:pointer;
+  }
+  .nav-icon { font-size:22px; }
+  .nav-label { font-size:10px; font-weight:700; color:#C0A88A; }
+  .nav-item.active .nav-label { color:var(--orange); }
+  .nav-dot { width:5px; height:5px; background:var(--orange); border-radius:50%; margin-top:-2px; }
+
+  @keyframes slideUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="header-title">📊 통계</div>
+</div>
+
+<div class="scroll-body">
+
+  <!-- STREAK HERO -->
+  <div class="streak-hero">
+    <div class="streak-label">🔥 연속 학습</div>
+    <div class="streak-num" id="streakNum">0</div>
+    <div class="streak-unit">일 연속 중</div>
+    <div class="streak-best" id="streakBest">최고 기록: 0일</div>
+  </div>
+
+  <!-- BIG STATS -->
+  <div class="big-stats">
+    <div class="big-stat orange">
+      <span class="big-stat-icon">📝</span>
+      <div class="big-stat-num" id="totalSentences">–</div>
+      <div class="big-stat-label">전체 문장</div>
+    </div>
+    <div class="big-stat green">
+      <span class="big-stat-icon">✅</span>
+      <div class="big-stat-num" id="learnedCount">–</div>
+      <div class="big-stat-label">학습 완료</div>
+    </div>
+    <div class="big-stat purple">
+      <span class="big-stat-icon">🎮</span>
+      <div class="big-stat-num" id="quizTotal">–</div>
+      <div class="big-stat-label">총 퀴즈 수</div>
+    </div>
+    <div class="big-stat blue">
+      <span class="big-stat-icon">🎯</span>
+      <div class="big-stat-num" id="accuracy">–%</div>
+      <div class="big-stat-label">정답률</div>
+    </div>
+  </div>
+
+  <!-- 학습 진행률 -->
+  <div class="section-title">📈 학습 진행률</div>
+  <div class="progress-card">
+    <div class="prog-row">
+      <div class="prog-label">
+        <span class="prog-name">전체 진행률</span>
+        <span class="prog-val" id="overallPct">0%</span>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill orange" id="overallBar"></div>
+      </div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">
+        <span class="prog-name">🧩 덩어리 조립</span>
+        <span class="prog-val" id="chunkPct">0%</span>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill purple" id="chunkBar"></div>
+      </div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">
+        <span class="prog-name">⌨️ 핵심 타이핑</span>
+        <span class="prog-val" id="typingPct">0%</span>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill green" id="typingBar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이번 주 학습 -->
+  <div class="section-title">📅 이번 주 학습량</div>
+  <div class="week-card">
+    <div style="font-size:12px;font-weight:700;color:var(--text-muted);">지난 7일 학습한 문장 수</div>
+    <div class="week-grid" id="weekGrid">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+  <!-- 최근 퀴즈 기록 -->
+  <div class="section-title">🕐 최근 퀴즈 기록</div>
+  <div class="history-card">
+    <div id="historyList">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+  <!-- 업적 -->
+  <div class="section-title">🏆 업적</div>
+  <div class="achieve-grid" id="achieveGrid">
+    <!-- JS로 렌더링 -->
+  </div>
+
+  <div style="height:20px;"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+  <div class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">문장</span></div>
+  <div class="nav-item"><span class="nav-icon">🎮</span><span class="nav-label">퀴즈</span></div>
+  <div class="nav-item"><span class="nav-icon">📚</span><span class="nav-label">단어장</span></div>
+  <div class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label" style="color:var(--orange)">통계</span><div class="nav-dot"></div></div>
+</nav>
+
+<script type="module">
+import { KEYS, safeGet } from './js/core/storage.js';
+import { getExpressionCount } from './js/data/expressionManager.js';
+
+// ── 데이터 로드 ──
+function loadData() {
+  const progress  = safeGet(KEYS.PROGRESS,  null)?.data ?? {};
+  const streak    = safeGet(KEYS.STREAK,    null)?.data ?? {};
+
+  const total      = getExpressionCount(true);
+  const learned    = progress.learned_ids?.length ?? 0;
+  const history    = progress.quiz_history ?? [];
+  const streakCur  = streak.current ?? 0;
+  const streakBest = streak.best    ?? 0;
+  const weekData   = streak.week_log ?? [];  // [{date, count}] 최근 7일
+
+  // 퀴즈 정답률
+  const correct = history.filter(h => h.correct).length;
+  const accPct  = history.length ? Math.round((correct / history.length) * 100) : 0;
+
+  return { total, learned, history, streakCur, streakBest, weekData, accPct };
+}
+
+// ── 진행률 바 ──
+function setBar(barId, pctId, pct) {
+  document.getElementById(pctId).textContent = pct + '%';
+  setTimeout(() => {
+    document.getElementById(barId).style.width = pct + '%';
+  }, 100);
+}
+
+// ── 주간 차트 ──
+function renderWeekChart(weekData) {
+  const today = new Date();
+  const days  = ['일','월','화','수','목','금','토'];
+  const grid  = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+
+  // 최근 7일 생성
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d    = new Date(today);
+    d.setDate(d.getDate() - (6 - i));
+    const key  = d.toISOString().slice(0, 10);
+    const found = weekData.find(w => w.date === key);
+    return { day: days[d.getDay()], count: found?.count ?? 0, isToday: i === 6 };
+  });
+
+  const max = Math.max(...week.map(w => w.count), 1);
+
+  week.forEach(w => {
+    const col = document.createElement('div');
+    col.className = 'week-col';
+    const heightPct = Math.round((w.count / max) * 100);
+    col.innerHTML = `
+      <div class="week-bar-wrap">
+        <div class="week-bar${w.isToday ? ' today' : ''}"
+          style="height:${heightPct}%"></div>
+      </div>
+      <div class="week-day">${w.day}</div>
+      <div class="week-num${w.isToday ? ' today' : ''}">${w.count}</div>
+    `;
+    grid.appendChild(col);
+  });
+}
+
+// ── 퀴즈 기록 ──
+function renderHistory(history) {
+  const list = document.getElementById('historyList');
+  const recent = history.slice(-5).reverse();
+
+  if (!recent.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-weight:700;font-size:13px;">아직 퀴즈 기록이 없어요 🎮</div>';
+    return;
+  }
+
+  const quizNames = { chunk_scramble:'덩어리 조립', focus_typing:'핵심 타이핑', listening_dictation:'리스닝', meaning_match:'의미 매칭' };
+  list.innerHTML = recent.map(h => {
+    const scoreClass = h.score >= 80 ? 'high' : h.score >= 50 ? 'mid' : 'low';
+    const timeAgo = timeSince(h.ts);
+    return `
+      <div class="history-item">
+        <div class="history-icon ${h.correct ? 'correct' : 'wrong'}">${h.correct ? '✅' : '❌'}</div>
+        <div class="history-body">
+          <div class="history-quiz">${quizNames[h.type] ?? h.type}</div>
+          <div class="history-time">${timeAgo}</div>
+        </div>
+        <div class="history-score ${scoreClass}">${h.score ?? '–'}점</div>
+      </div>`;
+  }).join('');
+}
+
+function timeSince(isoStr) {
+  if (!isoStr) return '';
+  const diff = (Date.now() - new Date(isoStr)) / 1000;
+  if (diff < 60)   return '방금 전';
+  if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+  if (diff < 86400)return `${Math.floor(diff/3600)}시간 전`;
+  return `${Math.floor(diff/86400)}일 전`;
+}
+
+// ── 업적 ──
+function renderAchievements(data) {
+  const badges = [
+    { icon:'🌱', name:'첫 문장\n추가', cond: data.total >= 1 },
+    { icon:'🔥', name:'3일\n연속', cond: data.streakCur >= 3 },
+    { icon:'📚', name:'10문장\n달성', cond: data.total >= 10 },
+    { icon:'🎯', name:'퀴즈\n10회', cond: data.history.length >= 10 },
+    { icon:'⚡', name:'7일\n연속', cond: data.streakCur >= 7 },
+    { icon:'🏆', name:'50문장\n달성', cond: data.total >= 50 },
+  ];
+
+  document.getElementById('achieveGrid').innerHTML = badges.map(b => `
+    <div class="achieve-item ${b.cond ? '' : 'locked'}">
+      <div class="achieve-icon">${b.icon}</div>
+      <div class="achieve-name">${b.name.replace('\n','<br>')}</div>
+    </div>
+  `).join('');
+}
+
+// ── 초기화 ──
+const data = loadData();
+
+document.getElementById('streakNum').textContent     = data.streakCur;
+document.getElementById('streakBest').textContent    = `최고 기록: ${data.streakBest}일`;
+document.getElementById('totalSentences').textContent = data.total;
+document.getElementById('learnedCount').textContent  = data.learned;
+document.getElementById('quizTotal').textContent     = data.history.length;
+document.getElementById('accuracy').textContent      = data.accPct + '%';
+
+const overallPct = data.total > 0 ? Math.round((data.learned / data.total) * 100) : 0;
+setBar('overallBar',  'overallPct', overallPct);
+setBar('chunkBar',    'chunkPct',   0);  // Phase 3에서 채워짐
+setBar('typingBar',   'typingPct',  0);  // Phase 3에서 채워짐
+
+renderWeekChart(data.weekData);
+renderHistory(data.history);
+renderAchievements(data);
+</script>
+</body>
+</html>

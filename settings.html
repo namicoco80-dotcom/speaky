@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 설정</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF8C00;
+    --orange-light: #FFB347;
+    --orange-dark: #E07800;
+    --purple: #7C4DFF;
+    --purple-light: #B388FF;
+    --green: #00C07A;
+    --green-dark: #009960;
+    --red: #FF4757;
+    --red-dark: #CC2233;
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --text: #2D1B00;
+    --text-muted: #A0876A;
+    --border: #F0E0CC;
+    --shadow-card: 0 4px 20px rgba(45,27,0,0.08);
+    --shadow-3d: 0 5px 0 var(--orange-dark), 0 7px 14px rgba(255,140,0,0.25);
+  }
+
+  /* ── DARK MODE ── */
+  body.dark {
+    --bg: #1A1208;
+    --card: #2A1E0E;
+    --text: #FFE8C0;
+    --text-muted: #886644;
+    --border: #3D2910;
+    --shadow-card: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 420px;
+    margin: 0 auto;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,179,71,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(124,77,255,0.08) 0%, transparent 40%);
+    pointer-events: none; z-index: 0;
+    transition: opacity 0.3s;
+  }
+  body.dark::before { opacity: 0.5; }
+
+  /* ── HEADER ── */
+  .header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg);
+    padding: 52px 20px 16px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1.5px solid var(--border);
+    transition: background 0.3s;
+  }
+  .back-btn {
+    width: 38px; height: 38px;
+    background: var(--card);
+    border: none; border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+  .back-btn:active { transform: scale(0.9); }
+  .header-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px; font-weight: 800;
+    color: var(--orange);
+    text-shadow: 0 2px 0 var(--orange-dark);
+    flex: 1;
+  }
+
+  /* ── SCROLL BODY ── */
+  .scroll-body {
+    position: relative; z-index: 1;
+    padding: 0 0 100px;
+    overflow-y: auto;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin: 20px 16px 0;
+    animation: fadeUp 0.4s ease both;
+  }
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.10s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+  .section:nth-child(5) { animation-delay: 0.20s; }
+  .section:nth-child(6) { animation-delay: 0.25s; }
+  .section:nth-child(7) { animation-delay: 0.30s; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .section-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .section-icon.orange { background: linear-gradient(135deg, var(--orange), var(--orange-light)); box-shadow: 0 3px 0 var(--orange-dark); }
+  .section-icon.purple { background: linear-gradient(135deg, #7C4DFF, #B388FF); box-shadow: 0 3px 0 #5533CC; }
+  .section-icon.green  { background: linear-gradient(135deg, #00C07A, #4DDBAA); box-shadow: 0 3px 0 #009960; }
+  .section-icon.blue   { background: linear-gradient(135deg, #2196F3, #64B5F6); box-shadow: 0 3px 0 #1565C0; }
+  .section-icon.red    { background: linear-gradient(135deg, #FF4757, #FF7F8A); box-shadow: 0 3px 0 #CC2233; }
+  .section-icon.gray   { background: linear-gradient(135deg, #8090A0, #B0C0D0); box-shadow: 0 3px 0 #607080; }
+
+  .section-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px; font-weight: 800;
+    color: var(--text);
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1.5px solid var(--border);
+  }
+
+  /* ── ROW ── */
+  .row {
+    display: flex; align-items: center;
+    padding: 15px 16px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:active { background: rgba(255,140,0,0.06); }
+  .row.no-tap { cursor: default; }
+  .row.no-tap:active { background: transparent; }
+
+  .row-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+  .row-body { flex: 1; min-width: 0; }
+  .row-label {
+    font-size: 14px; font-weight: 800;
+    color: var(--text); line-height: 1.2;
+  }
+  .row-desc {
+    font-size: 11px; font-weight: 600;
+    color: var(--text-muted); margin-top: 2px;
+    line-height: 1.4;
+  }
+  .row-right { flex-shrink: 0; }
+
+  /* ── TOGGLE ── */
+  .toggle {
+    position: relative;
+    width: 50px; height: 28px;
+    background: #D0C0B0;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.25s;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 22px; height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .toggle.on { background: var(--orange); }
+  .toggle.on::after { transform: translateX(22px); }
+  .toggle.green-on.on { background: var(--green); }
+
+  /* ── CHEVRON ── */
+  .chevron {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  /* ── SLIDER ── */
+  .slider-wrap {
+    padding: 4px 0 2px;
+    width: 100%;
+  }
+  .slider-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 8px;
+  }
+  .slider-label { font-size: 11px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    background: linear-gradient(90deg, var(--orange) var(--pct, 50%), #E8D0B8 var(--pct, 50%));
+    border-radius: 6px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(255,140,0,0.5);
+    border: 2.5px solid var(--orange);
+    cursor: pointer;
+  }
+  .slider-val {
+    font-size: 13px; font-weight: 800;
+    color: var(--orange); min-width: 34px; text-align: right;
+  }
+
+  /* ── STEPPER ── */
+  .stepper {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step-btn {
+    width: 30px; height: 30px;
+    background: var(--orange);
+    border: none; border-radius: 8px;
+    color: white; font-size: 18px; font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--orange-dark);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.1s, box-shadow 0.1s;
+    line-height: 1;
+  }
+  .step-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--orange-dark); }
+  .step-val {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px; font-weight: 800;
+    color: var(--orange); min-width: 36px; text-align: center;
+  }
+
+  /* ── CHUNK SIZE SELECTOR ── */
+  .chunk-select {
+    display: flex; gap: 6px;
+  }
+  .chunk-opt {
+    flex: 1;
+    padding: 7px 0;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px; font-weight: 800;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .chunk-opt.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: white;
+    box-shadow: 0 3px 0 var(--orange-dark);
+  }
+
+  /* ── BADGE TAG ── */
+  .badge {
+    font-size: 11px; font-weight: 800;
+    padding: 3px 8px; border-radius: 8px;
+  }
+  .badge.orange { background: #FFF0DC; color: var(--orange); }
+  .badge.green  { background: #D4F5E5; color: var(--green-dark); }
+  .badge.red    { background: #FFE0E4; color: var(--red-dark); }
+  .badge.gray   { background: #E8E8E8; color: #607080; }
+
+  /* ── SPELLCHECK BANNER ── */
+  .spell-banner {
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow-3d);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .spell-banner:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--orange-dark), 0 3px 8px rgba(255,140,0,0.2);
+  }
+  .spell-banner::after {
+    content: '';
+    position: absolute; bottom: -20px; right: -20px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+  }
+  .spell-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px; font-weight: 800;
+    color: white;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .spell-sub {
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.82);
+    margin-top: 5px; line-height: 1.5;
+  }
+  .spell-cta {
+    margin-top: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px; font-weight: 800;
+    color: white;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ── NOTIFICATION TIME PICKER ── */
+  .time-picker-row {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .time-chip {
+    padding: 6px 12px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px; font-weight: 800;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .time-chip.active {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: white;
+    box-shadow: 0 3px 0 #5533CC;
+  }
+
+  /* ── DANGER BUTTON ── */
+  .danger-btn {
+    width: 100%;
+    padding: 15px;
+    background: transparent;
+    border: 2px solid var(--red);
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800;
+    color: var(--red);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .danger-btn:active { background: rgba(255,71,87,0.08); }
+
+  /* ── VERSION INFO ── */
+  .version-card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .version-mascot { font-size: 44px; filter: drop-shadow(0 4px 8px rgba(255,140,0,0.3)); }
+  .version-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px; font-weight: 800; color: var(--orange);
+    text-shadow: 0 2px 0 var(--orange-dark);
+  }
+  .version-num { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+  .version-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 420px;
+    padding: 20px 20px 40px;
+    animation: slideUpModal 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  @keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 18px;
+  }
+  .modal-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 19px; font-weight: 800;
+    color: var(--text); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Spell check expression list */
+  .spell-list { display: flex; flex-direction: column; gap: 8px; }
+  .spell-item {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .spell-item.has-error { border-color: var(--red); background: #FFF5F6; }
+  body.dark .spell-item.has-error { background: #2A1012; }
+  .spell-en { font-size: 14px; font-weight: 700; color: var(--text); }
+  .spell-error {
+    font-size: 12px; font-weight: 700;
+    color: var(--red); margin-top: 4px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .spell-ok { font-size: 12px; font-weight: 700; color: var(--green); margin-top: 4px; }
+  .edit-input {
+    margin-top: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 700;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+  }
+  .fix-btn {
+    margin-top: 6px;
+    padding: 7px 14px;
+    background: var(--orange);
+    border: none; border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 800;
+    color: white; cursor: pointer;
+    box-shadow: 0 3px 0 var(--orange-dark);
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 420px;
+    background: var(--card);
+    border-top: 1.5px solid var(--border);
+    display: flex;
+    padding: 10px 0 24px;
+    z-index: 30;
+    transition: background 0.3s;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .nav-item:active { transform: scale(0.9); }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--text-muted); }
+  .nav-item.active .nav-label { color: var(--orange); }
+  .nav-dot { width: 5px; height: 5px; background: var(--orange); border-radius: 50%; margin-top: -2px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Reset confirm modal */
+  .reset-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-cancel {
+    flex: 1; padding: 14px;
+    background: var(--bg); border: 2px solid var(--border);
+    border-radius: 14px; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800; color: var(--text-muted);
+    cursor: pointer;
+  }
+  .btn-confirm-reset {
+    flex: 1; padding: 14px;
+    background: var(--red); border: none;
+    border-radius: 14px; font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800; color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--red-dark);
+  }
+</style>
+</head>
+<body id="body">
+
+<!-- HEADER -->
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="header-title">⚙️ 설정</div>
+</div>
+
+<div class="scroll-body">
+
+  <!-- ① 오타 검사 BANNER -->
+  <div class="section">
+    <div class="spell-banner" onclick="openSpellModal()">
+      <div class="spell-title">🔍 오타 검사</div>
+      <div class="spell-sub">
+        모든 표현의 철자·대소문자·띄어쓰기를 검사해요.<br>
+        오타가 발견되면 바로 수정할 수 있어요!
+      </div>
+      <div class="spell-cta">🔍 전체 표현 오타 검사 시작 →</div>
+    </div>
+  </div>
+
+  <!-- ② 주야간 모드 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon orange">🌓</div>
+      <div class="section-name">화면 테마</div>
+    </div>
+    <div class="card">
+      <div class="row no-tap">
+        <span class="row-icon">☀️</span>
+        <div class="row-body">
+          <div class="row-label">주야간 모드</div>
+          <div class="row-desc" id="themeDesc">현재: 라이트 모드</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle on" id="themeToggle" onclick="toggleTheme()"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 학습 환경 설정 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon purple">🧩</div>
+      <div class="section-name">학습 환경 설정</div>
+    </div>
+    <div class="card">
+
+      <!-- 퀴즈 포맷 온/오프 -->
+      <div class="row no-tap" style="flex-direction:column; align-items:flex-start; gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">🎮</span>
+          <div class="row-body">
+            <div class="row-label">퀴즈 포맷 설정</div>
+            <div class="row-desc">원하지 않는 방식은 꺼두세요</div>
+          </div>
+        </div>
+        <div style="width:100%; display:flex; flex-direction:column; gap:8px; padding-left: 38px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">🧱 덩어리 조립</span>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">⌨️ 핵심 타이핑</span>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">👂 리스닝 받아쓰기</span>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">🔗 의미 매칭</span>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">🔤 단어 선택</span>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 청크 크기 -->
+      <div class="row no-tap" style="flex-direction:column; align-items:flex-start; gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">📦</span>
+          <div class="row-body">
+            <div class="row-label">청크 크기 조절</div>
+            <div class="row-desc">의미 덩어리 단위 (난이도 조절)</div>
+          </div>
+        </div>
+        <div class="chunk-select" style="width:100%;padding-left:38px;">
+          <div class="chunk-opt active" onclick="selectChunk(this)">2단어<br><span style="font-size:10px;opacity:0.7">쉬움</span></div>
+          <div class="chunk-opt" onclick="selectChunk(this)">3단어<br><span style="font-size:10px;opacity:0.7">보통</span></div>
+          <div class="chunk-opt" onclick="selectChunk(this)">4단어+<br><span style="font-size:10px;opacity:0.7">어려움</span></div>
+        </div>
+      </div>
+
+      <!-- 자동 발음 재생 -->
+      <div class="row no-tap">
+        <span class="row-icon">🔊</span>
+        <div class="row-body">
+          <div class="row-label">자동 발음 재생</div>
+          <div class="row-desc">문제 등장 시 원어민 음성 자동 재생</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+
+      <!-- 타이핑 힌트 -->
+      <div class="row no-tap">
+        <span class="row-icon">💡</span>
+        <div class="row-body">
+          <div class="row-label">타이핑 힌트</div>
+          <div class="row-desc">타이핑 모드에서 첫 글자 힌트 표시</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ④ 음성 및 오디오 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon blue">🎵</div>
+      <div class="section-name">음성 및 오디오</div>
+    </div>
+    <div class="card">
+
+      <!-- TTS 엔진 -->
+      <div class="row" onclick="openTTSModal()">
+        <span class="row-icon">🌐</span>
+        <div class="row-body">
+          <div class="row-label">TTS 음성 엔진</div>
+          <div class="row-desc">현재: 브라우저 기본 (무료)</div>
+        </div>
+        <div class="row-right"><span class="chevron">›</span></div>
+      </div>
+
+      <!-- 발음 선택 -->
+      <div class="row no-tap">
+        <span class="row-icon">🇺🇸</span>
+        <div class="row-body">
+          <div class="row-label">발음 선택</div>
+          <div class="row-desc">미국식 / 영국식</div>
+        </div>
+        <div class="row-right">
+          <div style="display:flex;gap:6px;">
+            <div class="chunk-opt active" id="usBtn" onclick="selectAccent('us')" style="min-width:42px;padding:5px 8px;">🇺🇸 US</div>
+            <div class="chunk-opt" id="ukBtn" onclick="selectAccent('uk')" style="min-width:42px;padding:5px 8px;">🇬🇧 UK</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 읽기 속도 -->
+      <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:6px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">⏱️</span>
+          <div class="row-body">
+            <div class="row-label">읽기 속도</div>
+          </div>
+          <div class="slider-val" id="speedVal">1.0x</div>
+        </div>
+        <div style="padding: 0 4px;width:100%">
+          <input type="range" id="speedSlider" min="8" max="12" value="10"
+            oninput="updateSlider(this,'speedVal',(this.value/10).toFixed(1)+'x','--pct-speed')"
+            style="--pct:50%;width:100%">
+          <div class="slider-row">
+            <span class="slider-label">0.8x 느리게</span>
+            <span style="flex:1"></span>
+            <span class="slider-label">1.2x 빠르게</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 효과음 볼륨 -->
+      <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:6px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">🐶</span>
+          <div class="row-body">
+            <div class="row-label">효과음 볼륨</div>
+            <div class="row-desc">정답/오답 효과음</div>
+          </div>
+          <div class="slider-val" id="sfxVal">70%</div>
+        </div>
+        <div style="padding:0 4px;width:100%">
+          <input type="range" id="sfxSlider" min="0" max="100" value="70"
+            oninput="updateSlider(this,'sfxVal',this.value+'%',null)"
+            style="--pct:70%;width:100%">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ⑤ 데이터 관리 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon green">💾</div>
+      <div class="section-name">데이터 관리</div>
+    </div>
+    <div class="card">
+
+      <div class="row">
+        <span class="row-icon">📤</span>
+        <div class="row-body">
+          <div class="row-label">백업 (내보내기)</div>
+          <div class="row-desc">문장·노트를 JSON 파일로 저장</div>
+        </div>
+        <div class="row-right"><span class="badge green">무료</span></div>
+      </div>
+
+      <div class="row">
+        <span class="row-icon">📥</span>
+        <div class="row-body">
+          <div class="row-label">복구 (가져오기)</div>
+          <div class="row-desc">백업 파일에서 데이터 불러오기</div>
+        </div>
+        <div class="row-right"><span class="chevron">›</span></div>
+      </div>
+
+      <div class="row">
+        <span class="row-icon">🔑</span>
+        <div class="row-body">
+          <div class="row-label">API 키 관리</div>
+          <div class="row-desc">외부 번역·사전 연결 (선택사항)</div>
+        </div>
+        <div class="row-right"><span class="badge gray">선택</span></div>
+      </div>
+
+      <div class="row" onclick="openResetModal()" style="border-bottom:none;">
+        <span class="row-icon">🗑️</span>
+        <div class="row-body">
+          <div class="row-label" style="color:var(--red)">전체 초기화</div>
+          <div class="row-desc">모든 학습 데이터 삭제 (되돌릴 수 없음)</div>
+        </div>
+        <div class="row-right"><span class="badge red">위험</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ⑥ 알림 및 루틴 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon orange">🔔</div>
+      <div class="section-name">알림 및 루틴</div>
+    </div>
+    <div class="card">
+
+      <!-- 학습 알림 토글 -->
+      <div class="row no-tap">
+        <span class="row-icon">⏰</span>
+        <div class="row-body">
+          <div class="row-label">학습 알림</div>
+          <div class="row-desc">지정 시간에 공부 알림 받기</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle green-on" id="notiToggle" onclick="toggleNoti()"></button>
+        </div>
+      </div>
+
+      <!-- 알림 시간 선택 -->
+      <div class="row no-tap" id="notiTimeRow" style="flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="row-icon">🕒</span>
+          <div class="row-label">알림 시간 선택</div>
+        </div>
+        <div class="time-picker-row" style="padding-left:38px;">
+          <div class="time-chip" onclick="selectTime(this)">오전 7시</div>
+          <div class="time-chip" onclick="selectTime(this)">점심 12시</div>
+          <div class="time-chip active" onclick="selectTime(this)">퇴근 18시</div>
+          <div class="time-chip" onclick="selectTime(this)">저녁 21시</div>
+          <div class="time-chip" onclick="selectTime(this)">취침 23시</div>
+        </div>
+      </div>
+
+      <!-- 데일리 목표 -->
+      <div class="row no-tap" style="border-bottom:none;">
+        <span class="row-icon">🎯</span>
+        <div class="row-body">
+          <div class="row-label">데일리 목표</div>
+          <div class="row-desc">하루 학습 목표 문장 수</div>
+        </div>
+        <div class="row-right">
+          <div class="stepper">
+            <button class="step-btn" onclick="changeGoal(-1)">−</button>
+            <span class="step-val" id="goalVal">5문장</span>
+            <button class="step-btn" onclick="changeGoal(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ⑦ 앱 정보 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon gray">ℹ️</div>
+      <div class="section-name">앱 정보</div>
+    </div>
+    <div class="version-card">
+      <div class="version-mascot">⚡</div>
+      <div>
+        <div class="version-name">SPEAKY</div>
+        <div class="version-num">버전 1.0.0 (2026.03.14)</div>
+        <div class="version-desc">나만의 영어 표현 노트 & 자동 퀴즈 앱</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:20px;"></div>
+</div><!-- /scroll-body -->
+
+
+<!-- ══ SPELL CHECK MODAL ══ -->
+<div class="modal-overlay" id="spellModal" onclick="closeIfBg(event,'spellModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔍 오타 검사 결과</div>
+    <div class="spell-list" id="spellList">
+      <!-- JS로 채움 -->
+    </div>
+    <button onclick="closeModal('spellModal')"
+      style="margin-top:20px;width:100%;padding:14px;background:var(--orange);border:none;border-radius:14px;
+             font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:white;cursor:pointer;
+             box-shadow:0 4px 0 var(--orange-dark);">
+      ✅ 완료
+    </button>
+  </div>
+</div>
+
+<!-- ══ RESET CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="resetModal" onclick="closeIfBg(event,'resetModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚠️ 전체 초기화</div>
+    <p style="font-size:14px;font-weight:600;color:var(--text-muted);line-height:1.6;">
+      저장된 모든 문장, 학습 기록, 즐겨찾기가 <strong style="color:var(--red)">영구적으로 삭제</strong>됩니다.<br>
+      이 작업은 되돌릴 수 없어요. 계속하시겠어요?
+    </p>
+    <div class="reset-actions">
+      <button class="btn-cancel" onclick="closeModal('resetModal')">취소</button>
+      <button class="btn-confirm-reset" onclick="doReset()">🗑️ 모두 삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TTS ENGINE MODAL ══ -->
+<div class="modal-overlay" id="ttsModal" onclick="closeIfBg(event,'ttsModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔊 TTS 엔진 선택</div>
+    <div style="display:flex;flex-direction:column;gap:10px;" id="ttsOptions">
+      <div class="spell-item" onclick="selectTTS(this,'브라우저 기본')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🌐</span>
+          <div>
+            <div class="spell-en">브라우저 기본</div>
+            <div class="spell-ok">무료 · 항상 사용 가능 ✓ 현재 선택</div>
+          </div>
+        </div>
+      </div>
+      <div class="spell-item" onclick="selectTTS(this,'Edge Neural')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">💎</span>
+          <div>
+            <div class="spell-en">Edge Neural</div>
+            <div class="spell-ok" style="color:var(--text-muted);">무료 · PC Edge 브라우저 전용</div>
+          </div>
+        </div>
+      </div>
+      <div class="spell-item" onclick="selectTTS(this,'OpenAI TTS')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">🟢</span>
+          <div>
+            <div class="spell-en">OpenAI TTS</div>
+            <div class="spell-error" style="color:#888;">고퀄 · API 키 필요 · 소량 과금</div>
+          </div>
+        </div>
+      </div>
+      <div class="spell-item" onclick="selectTTS(this,'ElevenLabs')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:24px;">⚡</span>
+          <div>
+            <div class="spell-en">ElevenLabs</div>
+            <div class="spell-error" style="color:#888;">원어민+감정 · API 키 필요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <div class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+  <div class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">문장</span></div>
+  <div class="nav-item"><span class="nav-icon">🎮</span><span class="nav-label">퀴즈</span></div>
+  <div class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">통계</span></div>
+  <div class="nav-item active">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label" style="color:var(--orange)">설정</span>
+    <div class="nav-dot"></div>
+  </div>
+</nav>
+
+<script type="module">
+import {
+  getSettings, updateSettings, setTheme, setTTSEngine,
+  setTTSSpeed, setDailyGoal, setNotification, setApiKey, resetSettings,
+} from './js/data/settingsManager.js';
+import { exportAll, importAll, getSnapshotMeta } from './js/data/backupManager.js';
+import { requestPermission, sendTestNotification, scheduleToday, clearScheduled } from './js/data/notificationManager.js';
+
+// ── 설정 로드 후 UI 반영 ──
+const S = getSettings();
+
+// 테마
+let isDark = S.theme === 'dark';
+if (isDark) document.getElementById('body').classList.add('dark');
+document.getElementById('themeDesc').textContent = isDark ? '현재: 다크 모드' : '현재: 라이트 모드';
+document.getElementById('themeToggle').classList.toggle('on', !isDark);
+
+// TTS 속도
+const speedSlider = document.getElementById('speedSlider');
+const speedPct    = ((S.tts_speed ?? 1.0) - 0.5) / 1.5 * 100;
+speedSlider.value = ((S.tts_speed ?? 1.0) - 0.5) / 1.5 * 100;
+speedSlider.style.background = `linear-gradient(90deg, var(--orange) ${speedPct.toFixed(0)}%, #E8D0B8 ${speedPct.toFixed(0)}%)`;
+document.getElementById('speedVal').textContent = `${S.tts_speed ?? 1.0}x`;
+
+// SFX
+const sfxSlider = document.getElementById('sfxSlider');
+const sfxPct    = (S.sfx_volume ?? 0.7) * 100;
+sfxSlider.value = sfxPct;
+sfxSlider.style.background = `linear-gradient(90deg, var(--orange) ${sfxPct}%, #E8D0B8 ${sfxPct}%)`;
+document.getElementById('sfxVal').textContent = `${sfxPct.toFixed(0)}%`;
+
+// 발음
+document.getElementById('usBtn').classList.toggle('active', (S.tts_accent ?? 'us') === 'us');
+document.getElementById('ukBtn').classList.toggle('active', S.tts_accent === 'uk');
+
+// 청크 크기
+document.querySelectorAll('.chunk-opt').forEach(el => {
+  el.classList.toggle('active', String(el.dataset.val ?? el.textContent.trim()) === String(S.chunk_size ?? 2));
+});
+
+// 알림
+let notiOn = S.notification?.enabled ?? false;
+document.getElementById('notiToggle').classList.toggle('on', notiOn);
+document.getElementById('notiTimeRow').style.display = notiOn ? '' : 'none';
+
+// 알림 시간
+const timeMap = { '07:00':'오전 7시','12:00':'점심 12시','18:00':'퇴근 18시','21:00':'저녁 21시','23:00':'취침 23시' };
+const curTime = S.notification?.time ?? '18:00';
+document.querySelectorAll('.time-chip').forEach(el => {
+  const chips = { '오전 7시':'07:00','점심 12시':'12:00','퇴근 18시':'18:00','저녁 21시':'21:00','취침 23시':'23:00' };
+  el.classList.toggle('active', chips[el.textContent.trim()] === curTime);
+});
+
+// 데일리 목표
+let goal = S.daily_goal ?? 5;
+document.getElementById('goalVal').textContent = goal + '문장';
+
+// TTS 엔진
+const ttsEngineMap = { browser:'브라우저 기본', edge:'Edge Neural', openai:'OpenAI TTS', elevenlabs:'ElevenLabs' };
+const ttsRowDesc = document.querySelector('[onclick="openTTSModal()"] .row-desc');
+if (ttsRowDesc) ttsRowDesc.textContent = '현재: ' + (ttsEngineMap[S.tts_engine] ?? '브라우저 기본');
+
+// ── 테마 ──
+window.toggleTheme = function() {
+  isDark = !isDark;
+  document.getElementById('body').classList.toggle('dark', isDark);
+  document.getElementById('themeDesc').textContent = isDark ? '현재: 다크 모드' : '현재: 라이트 모드';
+  document.getElementById('themeToggle').classList.toggle('on', !isDark);
+  setTheme(isDark ? 'dark' : 'light');
+};
+
+// ── 슬라이더 ──
+window.updateSlider = function(el, valId, display) {
+  document.getElementById(valId).textContent = display;
+  const pct = ((el.value - el.min) / (el.max - el.min) * 100).toFixed(0);
+  el.style.background = `linear-gradient(90deg, var(--orange) ${pct}%, #E8D0B8 ${pct}%)`;
+  if (el.id === 'speedSlider') setTTSSpeed(0.5 + (el.value / 100) * 1.5);
+  if (el.id === 'sfxSlider')   updateSettings({ sfx_volume: el.value / 100 });
+};
+
+// ── 청크 ──
+window.selectChunk = function(el) {
+  document.querySelectorAll('.chunk-opt').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const val = parseInt(el.dataset.val ?? el.textContent);
+  if (!isNaN(val)) updateSettings({ chunk_size: val });
+};
+
+// ── 발음 ──
+window.selectAccent = function(acc) {
+  document.getElementById('usBtn').classList.toggle('active', acc==='us');
+  document.getElementById('ukBtn').classList.toggle('active', acc==='uk');
+  updateSettings({ tts_accent: acc });
+};
+
+// ── 알림 ──
+window.toggleNoti = async function() {
+  notiOn = !notiOn;
+  document.getElementById('notiToggle').classList.toggle('on', notiOn);
+  document.getElementById('notiTimeRow').style.display = notiOn ? '' : 'none';
+
+  if (notiOn) {
+    const perm = await requestPermission();
+    if (perm !== 'granted') {
+      notiOn = false;
+      document.getElementById('notiToggle').classList.remove('on');
+      document.getElementById('notiTimeRow').style.display = 'none';
+      alert('알림 권한이 필요해요. 브라우저 설정에서 허용해주세요.');
+      return;
+    }
+    scheduleToday();
+  } else {
+    clearScheduled();
+  }
+
+  const curTime2 = getSelectedTime();
+  setNotification(notiOn, curTime2);
+};
+
+function getSelectedTime() {
+  const active = document.querySelector('.time-chip.active');
+  const map = { '오전 7시':'07:00','점심 12시':'12:00','퇴근 18시':'18:00','저녁 21시':'21:00','취침 23시':'23:00' };
+  return map[active?.textContent?.trim()] ?? '18:00';
+}
+
+window.selectTime = function(el) {
+  document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  setNotification(notiOn, getSelectedTime());
+  if (notiOn) scheduleToday();
+};
+
+// ── 알림 테스트 버튼 (설정 화면에 추가) ──
+const notiSection = document.getElementById('notiTimeRow');
+if (notiSection) {
+  const testBtn = document.createElement('button');
+  testBtn.style.cssText = 'margin:8px 0 0 38px;background:var(--orange);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;';
+  testBtn.textContent = '🔔 테스트 알림 보내기';
+  testBtn.onclick = () => sendTestNotification();
+  notiSection.appendChild(testBtn);
+}
+
+// ── 목표 스텝퍼 ──
+window.changeGoal = function(d) {
+  goal = Math.max(1, Math.min(30, goal + d));
+  document.getElementById('goalVal').textContent = goal + '문장';
+  setDailyGoal(goal);
+};
+
+// ── 모달 ──
+window.openSpellModal  = () => { buildSpellList(); document.getElementById('spellModal').classList.add('open'); };
+window.openResetModal  = () => document.getElementById('resetModal').classList.add('open');
+window.openTTSModal    = () => document.getElementById('ttsModal').classList.add('open');
+window.closeModal      = id => document.getElementById(id).classList.remove('open');
+window.closeIfBg       = (e, id) => { if (e.target === document.getElementById(id)) closeModal(id); };
+
+// ── 스펠 체크 (mock) ──
+const mockExpressions = [
+  { en: "I was so frustrated that I couldn't do anything.", error: null },
+  { en: "But the thing is, you're the only one who can forgive me", error: null },
+  { en: "I felt like i was nothing without you.", error: "대소문자 오류: 'i' → 'I'" },
+  { en: "Don't worry,let's check this!", error: "띄어쓰기 오류: ',' 뒤 공백 필요" },
+  { en: "She completly ignored me.", error: "철자 오류: 'completly' → 'completely'" },
+];
+
+window.buildSpellList = function() {
+  const list = document.getElementById('spellList');
+  list.innerHTML = '';
+  mockExpressions.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'spell-item' + (item.error ? ' has-error' : '');
+    div.innerHTML = `
+      <div class="spell-en">${item.en}</div>
+      ${item.error
+        ? `<div class="spell-error">⚠️ ${item.error}</div>
+           <input class="edit-input" id="edit${i}" value="${item.en}" placeholder="수정 후 저장">
+           <button class="fix-btn" onclick="fixItem(${i})">✅ 수정 저장</button>`
+        : `<div class="spell-ok">✅ 이상 없음</div>`
+      }`;
+    list.appendChild(div);
+  });
+};
+
+window.fixItem = function(i) {
+  const val = document.getElementById('edit'+i).value.trim();
+  if (val) { mockExpressions[i].en = val; mockExpressions[i].error = null; buildSpellList(); }
+};
+
+// ── 초기화 ──
+window.doReset = async function() {
+  closeModal('resetModal');
+  const { resetAll } = await import('./js/core/storage.js');
+  resetAll();
+  setTimeout(() => { alert('✅ 초기화 완료!'); location.reload(); }, 300);
+};
+
+// ── TTS 선택 ──
+window.selectTTS = function(el, name) {
+  document.querySelectorAll('#ttsOptions .spell-item').forEach(c => {
+    const ok = c.querySelector('.spell-ok');
+    if (ok) ok.textContent = ok.textContent.replace(' ✓ 현재 선택', '');
+  });
+  const okEl = el.querySelector('.spell-ok, .spell-error');
+  if (okEl) okEl.textContent += ' ✓ 현재 선택';
+  const ttsRowDesc2 = document.querySelector('[onclick="openTTSModal()"] .row-desc');
+  if (ttsRowDesc2) ttsRowDesc2.textContent = '현재: ' + name;
+  const engineMap2 = { '브라우저 기본':'browser','Edge Neural':'edge','OpenAI TTS':'openai','ElevenLabs':'elevenlabs' };
+  setTTSEngine(engineMap2[name] ?? 'browser');
+  setTimeout(() => closeModal('ttsModal'), 400);
+};
+
+// ── 백업 / 복구 ──
+window.doExport = () => exportAll();
+window.doImport = async function() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ok = await importAll(file);
+    alert(ok ? '✅ 복구 완료! 앱을 새로고침합니다.' : '❌ 복구 실패. 파일을 확인해주세요.');
+    if (ok) location.reload();
+  };
+  input.click();
+};
+
+// 백업/복구 버튼 연결
+document.querySelectorAll('.row').forEach(row => {
+  const label = row.querySelector('.row-label');
+  if (label?.textContent.includes('백업')) row.style.cursor = 'pointer', row.onclick = () => doExport();
+  if (label?.textContent.includes('복구')) row.style.cursor = 'pointer', row.onclick = () => doImport();
+});
+
+// Service Worker 등록
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW:', e));
+}
+
+</script>
+</body>
+</html>

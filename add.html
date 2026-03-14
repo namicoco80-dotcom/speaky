@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 문장 추가</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<!-- compromise.js: 브라우저 로컬 NLP (품사·구동사 분석) -->
+<script src="https://unpkg.com/compromise@14.14.0/builds/compromise.js"></script>
+<style>
+  :root {
+    --orange:#FF8C00; --orange-light:#FFB347; --orange-dark:#E07800;
+    --purple:#7C4DFF; --green:#00C07A; --green-dark:#009960;
+    --red:#FF4757; --teal:#00ACC1;
+    --bg:#FFF8F0; --card:#FFFFFF; --text:#2D1B00; --text-muted:#A0876A;
+    --border:#F0E0CC;
+    --shadow-card:0 4px 20px rgba(45,27,0,0.08);
+    --shadow-green-3d:0 5px 0 var(--green-dark), 0 7px 14px rgba(0,192,122,0.25);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; max-width:420px; margin:0 auto;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,179,71,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(124,77,255,0.08) 0%, transparent 40%);
+  }
+  .header {
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    padding:52px 20px 16px; display:flex; align-items:center; gap:12px;
+    border-bottom:1.5px solid var(--border);
+  }
+  .back-btn {
+    width:38px; height:38px; background:var(--card); border:none;
+    border-radius:12px; box-shadow:var(--shadow-card); font-size:18px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform 0.15s; flex-shrink:0;
+  }
+  .back-btn:active { transform:scale(0.9); }
+  .header-title {
+    font-family:'Baloo 2',cursive; font-size:22px; font-weight:800;
+    color:var(--orange); text-shadow:0 2px 0 var(--orange-dark);
+  }
+  .tab-bar {
+    position:relative; z-index:10; display:flex;
+    margin:20px 20px 0; background:var(--card);
+    border-radius:16px; padding:4px; box-shadow:var(--shadow-card);
+  }
+  .tab-btn {
+    flex:1; padding:10px 0; border:none; background:transparent;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; border-radius:12px; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .tab-btn.active { background:var(--orange); color:white; box-shadow:0 3px 0 var(--orange-dark); }
+  .panel { position:relative; z-index:1; padding:16px 20px 120px; }
+  .panel-section { display:none; }
+  .panel-section.active { display:block; }
+  .form-card {
+    background:var(--card); border-radius:20px; padding:18px;
+    box-shadow:var(--shadow-card); margin-bottom:12px;
+  }
+  .field-label {
+    font-size:11px; font-weight:800; color:var(--text-muted);
+    letter-spacing:0.8px; text-transform:uppercase; margin-bottom:8px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .req { color:var(--red); font-size:14px; }
+  textarea, input[type=text] {
+    width:100%; font-family:'Nunito',sans-serif; font-size:15px;
+    font-weight:600; color:var(--text); background:#FFFBF5;
+    border:2px solid var(--border); border-radius:12px; padding:12px 14px;
+    outline:none; transition:border-color 0.2s, box-shadow 0.2s; resize:none;
+  }
+  textarea:focus, input[type=text]:focus {
+    border-color:var(--orange); box-shadow:0 0 0 3px rgba(255,140,0,0.12);
+  }
+  textarea { min-height:80px; line-height:1.6; }
+  .char-count { font-size:11px; color:var(--text-muted); font-weight:700; text-align:right; margin-top:4px; }
+  .char-count.warn { color:var(--red); }
+
+  /* 한글 번역 */
+  .kr-input-wrap { position:relative; }
+  .kr-input-wrap input { padding-right:86px; }
+  .translate-btn {
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:var(--teal); border:none; border-radius:9px;
+    padding:6px 10px; font-size:11px; font-weight:800; color:white;
+    cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .translate-btn:active { transform:translateY(-50%) scale(0.92); }
+  .translate-btn.loading { background:#aaa; pointer-events:none; }
+  .translate-status { font-size:11px; font-weight:700; margin-top:5px; min-height:16px; }
+  .translate-status.ok   { color:var(--green); }
+  .translate-status.fail { color:var(--red); }
+  .translate-status.ing  { color:var(--teal); }
+
+  /* 분석 카드 */
+  .analysis-loading {
+    display:none; align-items:center; gap:8px; padding:8px 0;
+    font-size:12px; font-weight:700; color:var(--purple);
+  }
+  .analysis-loading.show { display:flex; }
+  .dots { display:flex; gap:3px; }
+  .dots span {
+    width:6px; height:6px; background:var(--purple); border-radius:50%;
+    animation:dotB 1s infinite;
+  }
+  .dots span:nth-child(2){animation-delay:.15s}
+  .dots span:nth-child(3){animation-delay:.3s}
+  @keyframes dotB{0%,80%,100%{transform:scale(0.6)}40%{transform:scale(1)}}
+
+  .analysis-card {
+    background:linear-gradient(135deg,#F0EEFF,#EAF3FF);
+    border:1.5px solid #C4B5FF; border-radius:14px; padding:14px;
+    margin-top:10px; display:none;
+  }
+  .analysis-card.show { display:block; }
+  .analysis-title {
+    font-size:11px; font-weight:800; color:var(--purple);
+    letter-spacing:0.8px; text-transform:uppercase; margin-bottom:10px;
+  }
+  .sub-lbl {
+    font-size:10px; font-weight:800; color:var(--text-muted);
+    letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;
+  }
+  .sub-lbl+.sub-lbl, .chunk-row+.sub-lbl, .vocab-row+.sub-lbl { margin-top:10px; }
+  .chunk-row, .vocab-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .chunk-tag {
+    background:white; border:1.5px solid #C4B5FF; border-radius:10px;
+    padding:5px 10px; font-size:12px; font-weight:700; color:var(--purple);
+  }
+  .vocab-tag {
+    background:white; border:1.5px solid #B2DFDB; border-radius:10px;
+    padding:5px 10px; font-size:12px; font-weight:700; color:#00796B;
+    display:flex; align-items:center; gap:5px;
+  }
+  .vocab-tag .vt {
+    font-size:9px; font-weight:800; color:#999;
+    background:#F0F0F0; border-radius:5px; padding:1px 5px;
+  }
+
+  /* 폴더 */
+  .folder-row { display:flex; gap:7px; flex-wrap:wrap; margin-top:4px; }
+  .folder-opt {
+    padding:5px 13px; border-radius:20px; border:2px solid var(--border);
+    background:var(--card); font-size:12px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; transition:all 0.15s;
+  }
+  .folder-opt.active {
+    background:var(--orange); border-color:var(--orange); color:white;
+    box-shadow:0 3px 0 var(--orange-dark);
+  }
+
+  /* 유튜브 */
+  .yt-wrap { position:relative; }
+  .yt-wrap input { padding-right:90px; }
+  .yt-paste {
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:var(--red); border:none; border-radius:9px;
+    padding:6px 10px; font-size:11px; font-weight:800; color:white; cursor:pointer;
+  }
+  .yt-preview {
+    display:none; gap:12px; align-items:center;
+    background:#FFFBF5; border:1.5px solid var(--border);
+    border-radius:12px; padding:12px; margin-top:10px;
+  }
+  .yt-preview.show { display:flex; }
+  .yt-thumb {
+    width:60px; height:40px; background:#111; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex-shrink:0;
+  }
+  .yt-title { font-size:12px; font-weight:800; color:var(--text); }
+  .yt-meta  { font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+  .yt-list  { margin-top:10px; }
+  .yt-row {
+    display:flex; align-items:center; gap:8px;
+    background:#FFFBF5; border:1.5px solid var(--border);
+    border-radius:12px; padding:10px 12px; margin-bottom:8px;
+  }
+  .yt-num {
+    width:20px; height:20px; background:var(--orange); color:white;
+    border-radius:6px; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .yt-row input { flex:1; background:transparent; border:none; box-shadow:none; padding:0; font-size:13px; }
+  .yt-row input:focus { border:none; box-shadow:none; }
+  .yt-del { background:none; border:none; font-size:15px; color:var(--text-muted); cursor:pointer; }
+  .add-row {
+    width:100%; padding:10px; background:transparent;
+    border:2px dashed var(--border); border-radius:12px;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; transition:all 0.15s;
+  }
+  .add-row:hover { border-color:var(--orange); color:var(--orange); }
+
+  /* 저장 */
+  .save-area {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:420px; padding:14px 20px 32px;
+    background:linear-gradient(transparent, var(--bg) 40%); z-index:40;
+  }
+  .save-btn {
+    width:100%; padding:17px; border:none; border-radius:18px;
+    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
+    background:var(--green); box-shadow:var(--shadow-green-3d);
+    cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .save-btn:active { transform:translateY(4px); box-shadow:0 1px 0 var(--green-dark); }
+
+  /* 토스트 */
+  .toast {
+    position:fixed; bottom:110px; left:50%; transform:translateX(-50%) translateY(14px);
+    background:#1A1208; color:white; padding:11px 20px; border-radius:14px;
+    font-size:13px; font-weight:800; opacity:0; transition:all 0.25s;
+    z-index:100; white-space:nowrap; pointer-events:none;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="header-title">✏️ 문장 추가</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabM" onclick="switchTab('manual')">✏️ 직접 입력</button>
+  <button class="tab-btn"        id="tabY" onclick="switchTab('youtube')">▶️ 유튜브 등록</button>
+</div>
+
+<div class="panel">
+
+  <!-- 직접 입력 -->
+  <div class="panel-section active" id="tab-manual">
+
+    <div class="form-card">
+      <div class="field-label">🇺🇸 영어 문장 <span class="req">*</span></div>
+      <textarea id="enInput" placeholder="예) I was so frustrated that I couldn't do anything."
+        oninput="onEnInput(this)" maxlength="300"></textarea>
+      <div class="char-count" id="enCount">0 / 300</div>
+      <div class="analysis-loading" id="anaLoading">
+        <div class="dots"><span></span><span></span><span></span></div>
+        청크·단어 분석 중 (로컬)...
+      </div>
+      <div class="analysis-card" id="anaCard">
+        <div class="analysis-title">✨ 자동 분석 결과 (로컬)</div>
+        <div class="sub-lbl">🧩 의미 덩어리</div>
+        <div class="chunk-row" id="chunkRow"></div>
+        <div class="sub-lbl">📖 핵심 단어·구동사</div>
+        <div class="vocab-row" id="vocabRow"></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">
+        🇰🇷 한글 뜻
+        <span style="font-size:10px;color:var(--teal);font-weight:700;text-transform:none;">MyMemory 자동번역</span>
+      </div>
+      <div class="kr-input-wrap">
+        <input type="text" id="krInput" placeholder="영어 입력 후 자동 번역됩니다" maxlength="200">
+        <button class="translate-btn" id="tBtn" onclick="translateNow()">🌐 재번역</button>
+      </div>
+      <div class="translate-status" id="tStatus"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">
+        📝 메모
+        <span style="font-size:10px;font-weight:600;text-transform:none;">선택사항</span>
+      </div>
+      <textarea id="memoInput" placeholder="예) so ~ that ... 구문: 너무 ~해서 ...하다"
+        maxlength="400" style="min-height:64px;"
+        oninput="updateCount(this,'memoCount',400)"></textarea>
+      <div class="char-count" id="memoCount">0 / 400</div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">📁 폴더</div>
+      <div class="folder-row" id="folderRow"></div>
+    </div>
+
+  </div>
+
+  <!-- 유튜브 등록 -->
+  <div class="panel-section" id="tab-youtube">
+
+    <div class="form-card">
+      <div class="field-label">🔗 유튜브 링크</div>
+      <div class="yt-wrap">
+        <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=..."
+          oninput="onYtInput(this)">
+        <button class="yt-paste" onclick="pasteUrl()">📋 붙여넣기</button>
+      </div>
+      <div class="yt-preview" id="ytPreview">
+        <div class="yt-thumb">▶️</div>
+        <div>
+          <div class="yt-title" id="ytTitle"></div>
+          <div class="yt-meta"  id="ytMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">📁 폴더</div>
+      <div class="folder-row" id="folderRowYt"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">🇺🇸 등록할 문장들</div>
+      <div class="yt-list" id="ytList"></div>
+      <button class="add-row" onclick="addYtRow()">+ 문장 추가</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="save-area">
+  <button class="save-btn" onclick="save()">✅ 저장하기</button>
+</div>
+<div class="toast" id="toast"></div>
+
+
+<script type="module">
+import { addExpression, getFolders, addFolder } from './js/data/expressionManager.js';
+
+// ── 구동사 사전 ──
+const PV = new Set([
+  'give up','give in','give out','give back','give away',
+  'take off','take on','take over','take up','take out','take back','take down',
+  'get up','get out','get over','get through','get along','get away','get back','get down',
+  'put off','put on','put up','put down','put away','put out','put through',
+  'come up','come out','come back','come over','come across','come down','come in',
+  'go on','go out','go back','go over','go through','go down','go up','go away',
+  'turn on','turn off','turn up','turn down','turn out','turn around',
+  'look up','look out','look after','look back','look into','look over',
+  'run out','run into','run away','run over','run through',
+  'set up','set out','set back','set off','set aside',
+  'break up','break down','break out','break in','break through','break off',
+  'bring up','bring out','bring back','bring down','bring about',
+  'carry on','carry out','fall apart','fall back','fall behind','fall out',
+  'figure out','find out','hang out','hang up','hold on','hold off','hold up',
+  'keep up','keep on','make up','make out','move on','move out',
+  'pass out','pass on','pay off','pay back','pick up','pick out','pick on',
+  'pull off','pull out','pull through','show up','show off',
+  'throw away','throw out','throw up','wake up','work out','work on','wrap up',
+  'catch up','check in','check out','cut off','cut down','deal with',
+  'end up','feel like','fill in','fill out','fit in','fix up',
+  'hold back','let down','let go','let out','live up to',
+  'log in','log out','leave out',
+]);
+
+// ── 로컬 분석 ──
+function analyzeLocally(text) {
+  // compromise.js 로 품사 태깅
+  const doc   = nlp(text);
+  const lower = text.toLowerCase();
+
+  // 구동사
+  const foundPV = [...PV].filter(pv => lower.includes(pv));
+
+  // 단어
+  const stopW = new Set(['be','is','are','was','were','have','has','had','do','does','did',
+    'will','would','can','could','should','may','might','shall','must',
+    'i','you','he','she','it','we','they','a','an','the','this','that','these','those',
+    'and','or','but','so','because','if','when','just','very','really','only',
+    'not','no','any','all','some','one','me','my','your','his','her','our','their']);
+
+  const verbs = doc.verbs().out('array').map(w=>w.toLowerCase().replace(/[^a-z]/g,''));
+  const adjs  = doc.adjectives().out('array').map(w=>w.toLowerCase());
+  const nouns = doc.nouns().out('array').map(w=>w.toLowerCase());
+
+  const uniq = [...new Set([
+    ...verbs.filter(w=>w.length>3&&!stopW.has(w)),
+    ...adjs.filter(w=>w.length>3&&!stopW.has(w)),
+    ...nouns.filter(w=>w.length>4&&!stopW.has(w)),
+  ])].slice(0,5);
+
+  // 청크 분리 (접속사·전치사 기준)
+  const chunks = splitChunks(text);
+
+  // vocab 조합
+  const vocab = [];
+  foundPV.forEach(pv => vocab.push({ word:pv, type:'phrv' }));
+  uniq.forEach(w => {
+    if (!foundPV.some(pv=>pv.includes(w))) {
+      const type = verbs.includes(w)?'v': adjs.includes(w)?'adj':'n';
+      vocab.push({ word:w, type });
+    }
+  });
+
+  return { chunks, vocab: vocab.slice(0,6) };
+}
+
+function splitChunks(text) {
+  const re = /\b(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without|to|in|on|at|for|with|by|from|of|about)\b/gi;
+  const parts = text.split(re)
+    .map(s=>s.trim())
+    .filter(s=>s.length>1&&!s.match(/^(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without|to|in|on|at|for|with|by|from|of|about)$/i));
+
+  const chunks = [];
+  let buf = '';
+  parts.forEach(p => {
+    if (!buf) { buf=p; return; }
+    if (buf.split(' ').length>=2) { chunks.push(buf); buf=p; }
+    else buf+=' '+p;
+  });
+  if (buf) chunks.push(buf);
+  return chunks.slice(0,6).map(c=>({ en:c.trim() }));
+}
+
+// ── MyMemory 번역 ──
+async function myMemoryTranslate(text) {
+  const res  = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ko`);
+  const data = await res.json();
+  if (data.responseStatus===200) return data.responseData.translatedText;
+  throw new Error(data.responseDetails);
+}
+
+// ── 상태 ──
+let tab      = 'manual';
+let folder   = 'default';
+let analysis = null;
+let ytRows   = [];
+let enTimer  = null;
+let xlating  = false;
+
+// ── 탭 전환 ──
+window.switchTab = t => {
+  tab = t;
+  document.getElementById('tabM').classList.toggle('active', t==='manual');
+  document.getElementById('tabY').classList.toggle('active', t==='youtube');
+  document.getElementById('tab-manual').classList.toggle('active',  t==='manual');
+  document.getElementById('tab-youtube').classList.toggle('active', t==='youtube');
+  renderFolders();
+};
+
+// ── 폴더 렌더 ──
+function renderFolders() {
+  const list = [{ id:'default', name:'기본' }, ...getFolders()];
+  ['folderRow','folderRowYt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    list.forEach(f => {
+      const d = document.createElement('div');
+      d.className = 'folder-opt'+(f.id===folder?' active':'');
+      d.textContent = f.name;
+      d.onclick = () => { folder=f.id; renderFolders(); };
+      el.appendChild(d);
+    });
+    const a = document.createElement('div');
+    a.className='folder-opt'; a.textContent='+ 새 폴더'; a.style.borderStyle='dashed';
+    a.onclick=()=>{ const n=prompt('새 폴더 이름:'); if(n?.trim()){ addFolder(n.trim()); renderFolders(); } };
+    el.appendChild(a);
+  });
+}
+
+// ── 글자수 ──
+window.updateCount=(el,id,max)=>{
+  const e=document.getElementById(id);
+  e.textContent=`${el.value.length} / ${max}`;
+  e.classList.toggle('warn',el.value.length>max*0.9);
+};
+
+// ── 영어 입력 ──
+window.onEnInput=el=>{
+  updateCount(el,'enCount',300);
+  clearTimeout(enTimer);
+  const text=el.value.trim();
+  document.getElementById('anaCard').classList.remove('show');
+  document.getElementById('anaLoading').classList.remove('show');
+  analysis=null;
+  if(text.length<6) return;
+  enTimer=setTimeout(()=>{
+    // 1. 로컬 분석
+    document.getElementById('anaLoading').classList.add('show');
+    try {
+      analysis=analyzeLocally(text);
+      renderAnalysis(analysis);
+    } catch(e){ console.warn(e); }
+    finally { document.getElementById('anaLoading').classList.remove('show'); }
+    // 2. 자동 번역 (kr 비어있을 때만)
+    if(!document.getElementById('krInput').value.trim()) doTranslate(text);
+  }, 900);
+};
+
+function renderAnalysis({chunks,vocab}){
+  document.getElementById('chunkRow').innerHTML=chunks.length
+    ?chunks.map(c=>`<div class="chunk-tag">${c.en}</div>`).join('')
+    :'<span style="font-size:12px;color:var(--text-muted);">분리 결과 없음</span>';
+  document.getElementById('vocabRow').innerHTML=vocab.length
+    ?vocab.map(v=>`<div class="vocab-tag">${v.word}<span class="vt">${v.type}</span></div>`).join('')
+    :'<span style="font-size:12px;color:var(--text-muted);">–</span>';
+  document.getElementById('anaCard').classList.add('show');
+}
+
+// ── 번역 ──
+window.translateNow=async()=>{
+  const text=document.getElementById('enInput').value.trim();
+  if(!text){ showToast('⚠️ 영어 문장을 먼저 입력해주세요'); return; }
+  await doTranslate(text, true);
+};
+
+async function doTranslate(text, force=false){
+  if(xlating) return;
+  xlating=true;
+  const btn=document.getElementById('tBtn');
+  const st=document.getElementById('tStatus');
+  btn.classList.add('loading'); btn.textContent='번역 중...';
+  st.className='translate-status ing'; st.textContent='🌐 MyMemory 번역 중...';
+  try {
+    const kr=await myMemoryTranslate(text);
+    const el=document.getElementById('krInput');
+    if(force||!el.value.trim()) el.value=kr;
+    st.className='translate-status ok'; st.textContent='✅ 자동 번역 완료 — 직접 수정 가능해요';
+  } catch(e){
+    st.className='translate-status fail'; st.textContent='❌ 번역 실패 — 직접 입력해주세요 (인터넷 확인)';
+  } finally {
+    xlating=false; btn.classList.remove('loading'); btn.textContent='🌐 재번역';
+  }
+}
+
+// ── 유튜브 ──
+window.pasteUrl=async()=>{
+  try { const t=await navigator.clipboard.readText(); document.getElementById('ytUrl').value=t; onYtInput(document.getElementById('ytUrl')); }
+  catch { showToast('직접 붙여넣기 해주세요 (Ctrl+V)'); }
+};
+window.onYtInput=el=>{
+  const url=el.value.trim();
+  const isYt=/youtube\.com|youtu\.be/.test(url);
+  const prev=document.getElementById('ytPreview');
+  if(isYt){
+    const id=url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1]??'';
+    document.getElementById('ytTitle').textContent=`YouTube${id?' ('+id+')':''}`;
+    document.getElementById('ytMeta').textContent='링크 확인 ✅ — 아래에 문장을 입력하세요';
+    prev.classList.add('show');
+  } else prev.classList.remove('show');
+};
+window.addYtRow=()=>{ ytRows.push({id:Date.now(),text:''}); renderYtList(); };
+window.removeYtRow=id=>{ ytRows=ytRows.filter(r=>r.id!==id); renderYtList(); };
+function renderYtList(){
+  const el=document.getElementById('ytList');
+  el.innerHTML='';
+  ytRows.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='yt-row';
+    d.innerHTML=`<div class="yt-num">${i+1}</div>
+      <input type="text" placeholder="영어 문장..." value="${r.text.replace(/"/g,'&quot;')}"
+        oninput="ytRows[${i}].text=this.value">
+      <button class="yt-del" onclick="removeYtRow(${r.id})">✕</button>`;
+    el.appendChild(d);
+  });
+}
+
+// ── 저장 ──
+window.save=()=>{ tab==='manual'?saveManual():saveYt(); };
+
+function saveManual(){
+  const en=document.getElementById('enInput').value.trim();
+  const kr=document.getElementById('krInput').value.trim();
+  const memo=document.getElementById('memoInput').value.trim();
+  if(!en){ showToast('⚠️ 영어 문장을 입력해주세요'); return; }
+  const item=addExpression({en,memo,folder_id:folder,source:'manual'});
+  if(!item){ showToast('❌ 저장 실패'); return; }
+  saveProcessed(item.id,{ kr, chunks:analysis?.chunks??[], vocab:analysis?.vocab??[] });
+  showToast('✅ 저장 완료!');
+  setTimeout(()=>history.back(),1200);
+}
+
+function saveYt(){
+  const url=document.getElementById('ytUrl').value.trim();
+  const rows=ytRows.filter(r=>r.text.trim());
+  if(!url){ showToast('⚠️ 유튜브 링크를 입력해주세요'); return; }
+  if(!rows.length){ showToast('⚠️ 문장을 1개 이상 입력해주세요'); return; }
+  let cnt=0;
+  rows.forEach(r=>{
+    const item=addExpression({en:r.text.trim(),folder_id:folder,source:'youtube',source_url:url});
+    if(item) cnt++;
+  });
+  showToast(`✅ ${cnt}개 저장 완료!`);
+  setTimeout(()=>history.back(),1200);
+}
+
+function saveProcessed(id,{kr,chunks,vocab}){
+  try{
+    const s=JSON.parse(localStorage.getItem('speaky_processed')||'null');
+    const arr=s?.data?.expressions??[];
+    const idx=arr.findIndex(e=>e.id===id);
+    const entry={id,kr,chunks,vocab};
+    if(idx>=0) arr[idx]=entry; else arr.push(entry);
+    localStorage.setItem('speaky_processed',JSON.stringify({
+      schema_version:'1.0',saved_at:new Date().toISOString(),
+      data:{expressions:arr}
+    }));
+  }catch(e){console.warn(e);}
+}
+
+// ── 토스트 ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+window.showToast=showToast;
+
+// ── 초기화 ──
+renderFolders();
+addYtRow();
+if(location.hash==='#youtube') switchTab('youtube');
+</script>
+</body>
+</html>
