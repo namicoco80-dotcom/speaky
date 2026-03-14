@@ -24,8 +24,8 @@ async function initBuiltin() {
 
   // 여러 경로 시도 (GitHub Pages 대응)
   const paths = [
-    './data/builtin_30.json',
     '../data/builtin_30.json',
+    './data/builtin_30.json',
     '/speaky/data/builtin_30.json',
   ];
 
