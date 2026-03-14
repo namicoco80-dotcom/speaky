@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+  fetch('./data/builtin_30.json')
+    .then(r => r.json())
+    .then(d => document.body.innerHTML = '✅ 성공! ' + d.data.expressions.length + '개')
+    .catch(e => document.body.innerHTML = '❌ 실패: ' + e);
+</script>
+</body>
+</html>
