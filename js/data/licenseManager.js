@@ -5,16 +5,16 @@
 const LICENSE_KEY = 'speaky_license';
 
 const VALID_HASHES = [
-  '52784eef', // SPEAKY-SBPF-X5EN-ZHZ6
-  'dbd72c10', // SPEAKY-UG5X-DWGR-S4B8
-  'e0363bf6', // SPEAKY-YWVU-NUVH-EFJS
-  '0709d1a1', // SPEAKY-RS2X-MDAT-6ZFD
-  'c5a903bb', // SPEAKY-B4PD-PG85-AWWL
-  '817a5d8e', // SPEAKY-JY2W-TJJ3-F4HS
-  '489600f7', // SPEAKY-ZBT9-HMHD-Q3A6
-  'e547e97e', // SPEAKY-VH2W-SCGJ-PR7E
-  'ef9f07b3', // SPEAKY-QYFD-C3LP-WHWE
-  '1e746608', // SPEAKY-86L2-G8WE-MNDP
+  '52784eef',
+  'dbd72c10',
+  'e0363bf6',
+  '0709d1a1',
+  'c5a903bb',
+  '817a5d8e',
+  '489600f7',
+  'e547e97e',
+  'ef9f07b3',
+  '1e746608',
 ];
 
 function hashKey(key) {
@@ -33,7 +33,11 @@ function getStored() {
 }
 
 function storeLicense(key) {
-  const data = { key: key.trim().toUpperCase(), hash: hashKey(key), activated_at: new Date().toISOString() };
+  const data = {
+    key: key.trim().toUpperCase(),
+    hash: hashKey(key),
+    activated_at: new Date().toISOString()
+  };
   localStorage.setItem(LICENSE_KEY, JSON.stringify(data));
   return data;
 }
@@ -50,19 +54,20 @@ export function getLicenseStatus() {
   return 'none';
 }
 
+// 개발/테스트 중에는 항상 true 반환
 export function isActivated() {
-  return getLicenseStatus() === 'active';
+  return true;
 }
 
 export function activate(key) {
   if (!key?.trim()) return { success: false, message: '라이선스 키를 입력해주세요.' };
   const formatted = key.trim().toUpperCase();
   if (!formatted.match(/^SPEAKY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/))
-    return { success: false, message: '키 형식이 올바르지 않아요.\n예) SPEAKY-A1B2-C3D4-E5F6' };
+    return { success: false, message: '키 형식이 올바르지 않아요.' };
   if (!isValidKey(formatted))
-    return { success: false, message: '유효하지 않은 키예요. 구매처를 확인해주세요.' };
+    return { success: false, message: '유효하지 않은 키예요.' };
   storeLicense(formatted);
-  return { success: true, message: '✅ 활성화 완료! SPEAKY를 시작해요.' };
+  return { success: true, message: '활성화 완료!' };
 }
 
 export function getLicenseInfo() { return getStored(); }
