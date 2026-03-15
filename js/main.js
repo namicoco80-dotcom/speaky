@@ -47,10 +47,10 @@ function renderStats() {
   const learned  = progress.learned_ids?.length ?? 0;
   const pct      = total > 0 ? Math.round((learned / total) * 100) : 0;
 
-  const elTotal = document.querySelector('.stat-num.total');
-  const elFav   = document.querySelector('.stat-num.favorites');
-  const elPct   = document.querySelector('.progress-pct');
-  const elFill  = document.querySelector('.progress-bar-fill');
+  const elTotal = document.querySelector('.stat-val.total');
+  const elFav   = document.querySelector('.stat-val.favorites');
+  const elPct   = document.querySelector('.prog-label.progress-pct');
+  const elFill  = document.querySelector('.prog-fill');
   const elVocab = document.getElementById('vocabCount');
 
   if (elTotal) elTotal.textContent = total;
@@ -72,7 +72,7 @@ function renderTodayExpression() {
 
   if (elEn)  elEn.textContent  = item.en;
   if (elKr)  elKr.textContent  = item.kr ?? '';
-  if (card)  card.onclick = () => playTTS(item.en);
+  if (card) { card.onclick = () => playTTS(item.en); card.querySelector('.play-btn')?.addEventListener('click', e => { e.stopPropagation(); playTTS(item.en); }); }
 }
 
 // ─── 폴더 칩 렌더링 ──────────────────────────────────────────────────────────
