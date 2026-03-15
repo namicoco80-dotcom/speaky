@@ -379,44 +379,54 @@ const PV = new Set([
 
 // ── 로컬 분석 ──
 function analyzeLocally(text) {
-  // compromise.js 로 품사 태깅
   const doc   = nlp(text);
   const lower = text.toLowerCase();
 
-  // 구동사
-  const foundPV = [...PV].filter(pv => lower.includes(pv));
+  // 구동사 (전체 매칭)
+  const foundPV = [...PV].filter(pv => {
+    const re = new RegExp('\\b' + pv.replace(' ', '\\s+') + '\\b', 'i');
+    return re.test(lower);
+  });
 
-  // 단어
-  const stopW = new Set(['be','is','are','was','were','have','has','had','do','does','did',
+  // 불용어
+  const stopW = new Set([
+    'be','is','are','was','were','have','has','had','do','does','did',
     'will','would','can','could','should','may','might','shall','must',
-    'i','you','he','she','it','we','they','a','an','the','this','that','these','those',
-    'and','or','but','so','because','if','when','just','very','really','only',
-    'not','no','any','all','some','one','me','my','your','his','her','our','their']);
+    'i','you','he','she','it','we','they','a','an','the','this','that',
+    'these','those','and','or','but','so','because','if','when','just',
+    'very','really','only','not','no','any','all','some','one',
+    'me','my','your','his','her','our','their','its','to','of','in',
+    'on','at','for','with','about','get','got','go','make','take','come',
+    'know','think','want','like','look','use','feel','try','ask','need',
+    'seem','let','put','keep','right','well','also','back','after','before',
+  ]);
 
   const verbs = doc.verbs().out('array').map(w=>w.toLowerCase().replace(/[^a-z]/g,''));
   const adjs  = doc.adjectives().out('array').map(w=>w.toLowerCase());
   const nouns = doc.nouns().out('array').map(w=>w.toLowerCase());
 
-  const uniq = [...new Set([
-    ...verbs.filter(w=>w.length>3&&!stopW.has(w)),
-    ...adjs.filter(w=>w.length>3&&!stopW.has(w)),
-    ...nouns.filter(w=>w.length>4&&!stopW.has(w)),
-  ])].slice(0,5);
+  // 구동사에 포함되지 않은 단어만 추출
+  const pvWords = new Set(foundPV.flatMap(pv => pv.split(' ')));
 
-  // 청크 분리 (접속사·전치사 기준)
+  const uniq = [...new Set([
+    ...verbs.filter(w => w.length > 3 && !stopW.has(w) && !pvWords.has(w)),
+    ...adjs.filter(w  => w.length > 2 && !stopW.has(w)),
+    ...nouns.filter(w => w.length > 3 && !stopW.has(w) && !pvWords.has(w)),
+  ])].slice(0, 6);
+
   const chunks = splitChunks(text);
 
-  // vocab 조합
+  // vocab 조합 (구동사 우선 + 단어)
   const vocab = [];
-  foundPV.forEach(pv => vocab.push({ word:pv, type:'phrv' }));
+  foundPV.forEach(pv => vocab.push({ phrase: pv, type: 'phrv', kr: '' }));
   uniq.forEach(w => {
-    if (!foundPV.some(pv=>pv.includes(w))) {
-      const type = verbs.includes(w)?'v': adjs.includes(w)?'adj':'n';
-      vocab.push({ word:w, type });
+    if (!foundPV.some(pv => pv.includes(w))) {
+      const type = verbs.includes(w) ? 'v' : adjs.includes(w) ? 'adj' : 'n';
+      vocab.push({ word: w, type, kr: '' });
     }
   });
 
-  return { chunks, vocab: vocab.slice(0,6) };
+  return { chunks, vocab: vocab.slice(0, 8) };
 }
 
 function splitChunks(text) {
