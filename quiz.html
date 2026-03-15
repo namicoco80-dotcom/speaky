@@ -558,7 +558,24 @@ function renderQuestion() {
 
   document.getElementById('nextArea').classList.remove('show');
   document.getElementById('submitArea').style.display = 'block';
-  document.getElementById('submitBtn').disabled = false;
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = false;
+  // chunk_scramble / listening: 타일 배치 전엔 회색, 단 1개면 바로 활성화
+  if (currentQ.type === 'chunk_scramble' || currentQ.type === 'listening_dictation') {
+    const tileCount = currentQ.shuffled?.length ?? currentQ.words?.length ?? 1;
+    if (tileCount <= 1) {
+      submitBtn.style.background = 'var(--green)';
+      submitBtn.style.boxShadow  = '0 4px 0 var(--green-dark)';
+    } else {
+      submitBtn.style.background = '#C8C8C8';
+      submitBtn.style.boxShadow  = '0 4px 0 #A0A0A0';
+    }
+  } else {
+    // 타이핑·매칭은 항상 활성화
+    submitBtn.style.background = 'var(--orange)';
+    submitBtn.style.boxShadow  = '0 4px 0 var(--orange-dark)';
+  }
 
   const content = document.getElementById('quizContent');
   content.innerHTML = '';
@@ -585,6 +602,12 @@ function renderChunkScramble(el) {
     `<div class="chunk-tile" id="tile_${i}" onclick="placeChunk(${i},'${c.en.replace(/'/g,"\\'")}',${c.idx})">${c.en}</div>`
   ).join('');
   const pool = `<div class="chunk-pool" id="chunkPool">${tiles}</div>`;
+
+  // 청크가 1개면 바로 배치 처리
+  if (currentQ.shuffled.length === 1) {
+    const only = currentQ.shuffled[0];
+    placedChunks = [{ tileIdx: 0, text: only.en, answerIdx: only.idx }];
+  }
 
   el.innerHTML = `
     <div class="quiz-card">${badge}${krHtml}${ttsBtn}</div>
@@ -816,11 +839,24 @@ window.submitAnswer = function() {
   }
 
   const result = checkAnswer(currentQ, answer);
-  sessionResults.push({
-    expressionId: currentQ.expressionId ?? currentQ.pairs?.[0]?.id,
-    correct     : result.correct,
-    score       : result.score,
-  });
+
+  // meaning_match는 여러 쌍 → 각각 별도 기록
+  if (currentQ.type === 'meaning_match' && currentQ.pairs?.length > 1) {
+    currentQ.pairs.forEach(pair => {
+      const pairCorrect = matchState.matched.has(pair.id ?? pair.enId);
+      sessionResults.push({
+        expressionId: pair.id ?? pair.enId,
+        correct     : pairCorrect,
+        score       : pairCorrect ? 100 : 0,
+      });
+    });
+  } else {
+    sessionResults.push({
+      expressionId: currentQ.expressionId ?? currentQ.pairs?.[0]?.id ?? currentQ.pairs?.[0]?.enId,
+      correct     : result.correct,
+      score       : result.score,
+    });
+  }
 
   showFeedback(result);
 };
