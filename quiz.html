@@ -744,6 +744,19 @@ window.placeWord = function(tileIdx, text, answerIdx) {
     span.onclick = () => placeWord(tileIdx, text, answerIdx);
     answerArea.appendChild(span);
   }
+
+  // 정답 확인 버튼: 모든 단어 배치됐으면 활성화
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn) {
+    const totalWords = currentQ.shuffled?.length ?? 0;
+    const allPlaced  = placedChunks.length === totalWords;
+    submitBtn.style.background = allPlaced ? 'var(--green)' : '#C8C8C8';
+    submitBtn.style.boxShadow  = allPlaced ? '0 4px 0 var(--green-dark)' : '0 4px 0 #A0A0A0';
+    submitBtn.style.display    = 'flex';
+  }
+  // submitArea 항상 보이게
+  const submitArea = document.getElementById('submitArea');
+  if (submitArea) submitArea.style.display = 'block';
 };
 
 // ══ 4. 의미 매칭 렌더 ══
