@@ -11,7 +11,7 @@
 
 import { buildChunks, shuffleChunks, pickBlankIndex } from './chunkBuilder.js';
 import { getExpressions } from './expressionManager.js';
-import { getUnlearnedIds } from './scoreTracker.js';
+import { getUnlearnedIds, getRecentWrongIds } from './scoreTracker.js';
 
 // ── 유틸 ────────────────────────────────────────────────────────────────────
 
@@ -37,21 +37,30 @@ function pick(arr, n) {
  * @returns {Array}
  */
 export function prepareExpressions(count = 10, folderId = null) {
-  const all = getExpressions({ folder_id: folderId, includeBuiltin: true });
+  const all    = getExpressions({ folder_id: folderId, includeBuiltin: true });
   const allIds = all.map(e => e.id);
-  const unlearned = getUnlearnedIds(allIds);
 
-  // 우선순위: 1) 사용자 추가 문장(미학습) 2) 사용자 추가 문장(학습) 3) 내장 문장
-  const userUnlearned  = all.filter(e => e.source !== 'builtin' && unlearned.includes(e.id));
-  const userLearned    = all.filter(e => e.source !== 'builtin' && !unlearned.includes(e.id));
-  const builtinUnlearn = all.filter(e => e.source === 'builtin' && unlearned.includes(e.id));
-  const builtinLearn   = all.filter(e => e.source === 'builtin' && !unlearned.includes(e.id));
+  const unlearned  = new Set(getUnlearnedIds(allIds));
+  const recentWrong = new Set(getRecentWrongIds(allIds));
+
+  // 우선순위:
+  // 1) 최근 오답 (틀렸으니 다시 출제)
+  // 2) 사용자 추가 문장 + 미학습
+  // 3) 내장 문장 + 미학습
+  // 4) 사용자 추가 문장 + 학습완료
+  // 5) 내장 문장 + 학습완료
+  const p1 = all.filter(e => recentWrong.has(e.id));
+  const p2 = all.filter(e => !recentWrong.has(e.id) && e.source !== 'builtin' && unlearned.has(e.id));
+  const p3 = all.filter(e => !recentWrong.has(e.id) && e.source === 'builtin' && unlearned.has(e.id));
+  const p4 = all.filter(e => !recentWrong.has(e.id) && e.source !== 'builtin' && !unlearned.has(e.id));
+  const p5 = all.filter(e => !recentWrong.has(e.id) && e.source === 'builtin' && !unlearned.has(e.id));
 
   const pool = [
-    ...shuffle(userUnlearned),
-    ...shuffle(userLearned),
-    ...shuffle(builtinUnlearn),
-    ...shuffle(builtinLearn),
+    ...shuffle(p1),
+    ...shuffle(p2),
+    ...shuffle(p3),
+    ...shuffle(p4),
+    ...shuffle(p5),
   ].slice(0, count);
 
   return pool;
