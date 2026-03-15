@@ -557,6 +557,22 @@
     </div>
     <div class="card">
 
+      <!-- 폰트 사이즈 -->
+      <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">🔤</span>
+          <div class="row-body">
+            <div class="row-label">글자 크기</div>
+            <div class="row-desc" id="fontSizeDesc">보통</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding-left:38px;width:100%;">
+          <button onclick="setFontSize('small',this)"  id="fsSmall"  style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;background:var(--card);">작게 A</button>
+          <button onclick="setFontSize('medium',this)" id="fsMedium" style="flex:1;padding:8px;border:1.5px solid var(--orange);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;background:var(--orange-light);">보통 A</button>
+          <button onclick="setFontSize('large',this)"  id="fsLarge"  style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;background:var(--card);">크게 A</button>
+        </div>
+      </div>
+
       <!-- 퀴즈 포맷 온/오프 -->
       <div class="row no-tap" style="flex-direction:column; align-items:flex-start; gap:10px;">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
@@ -1235,6 +1251,31 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW:', e));
 }
 
+
+window.setFontSize = function(size, btn) {
+  localStorage.setItem('speaky_font_size', size);
+  const map = { small:'작게', medium:'보통', large:'크게' };
+  document.getElementById('fontSizeDesc').textContent = map[size];
+  document.documentElement.style.fontSize = { small:'13px', medium:'15px', large:'17px' }[size];
+  ['fsSmall','fsMedium','fsLarge'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.borderColor = '';
+    el.style.background = 'var(--card)';
+  });
+  btn.style.borderColor = 'var(--orange)';
+  btn.style.background  = 'var(--orange-light)';
+};
+
+// 초기 폰트 사이즈 표시
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small:'작게', medium:'보통', large:'크게' };
+  const descEl = document.getElementById('fontSizeDesc');
+  if (descEl) descEl.textContent = map[size];
+  const btnMap = { small:'fsSmall', medium:'fsMedium', large:'fsLarge' };
+  const btn = document.getElementById(btnMap[size]);
+  if (btn) { btn.style.borderColor='var(--orange)'; btn.style.background='var(--orange-light)'; }
+})();
 </script>
 </body>
 </html>

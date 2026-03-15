@@ -397,6 +397,15 @@ body::before {
 .stats-row  { animation:slideUp 0.5s 0.08s ease both; }
 .menu-grid  { animation:slideUp 0.5s 0.16s ease both; }
 </style>
+
+<script>
+// 폰트 사이즈 설정 적용 (전역)
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
 </head>
 <body>
 

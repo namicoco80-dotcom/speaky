@@ -130,6 +130,15 @@ body {
 .nav-lbl  { font-size:10px; font-weight:700; color:var(--text-3); }
 .nav-dot  { width:5px; height:5px; background:var(--p); border-radius:50%; margin-top:-2px; }
 </style>
+
+<script>
+// 폰트 사이즈 설정 적용 (전역)
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
 </head>
 <body>
 
@@ -170,7 +179,7 @@ function render() {
 
   // 오늘 날짜 기준 필터
   const today = new Date().toDateString();
-  const todayHistory = history.filter(h => new Date(h.date).toDateString() === today);
+  const todayHistory = history.filter(h => new Date(h.ts ?? h.date ?? 0).toDateString() === today);
 
   const content = document.getElementById('content');
   const allExprs = getExpressions({ includeBuiltin: true });
@@ -210,8 +219,8 @@ function render() {
 
   if (todayHistory.length > 0) {
     // 오늘 퀴즈 기록 있음
-    const wrongExprs = todayHistory.filter(h => !h.correct).map(h => exprMap[h.expressionId]).filter(Boolean);
-    const correctExprs = todayHistory.filter(h => h.correct).map(h => exprMap[h.expressionId]).filter(Boolean);
+    const wrongExprs = todayHistory.filter(h => !h.correct).map(h => exprMap[h.expressionId ?? h.id]).filter(Boolean);
+    const correctExprs = todayHistory.filter(h => h.correct).map(h => exprMap[h.expressionId ?? h.id]).filter(Boolean);
 
     if (wrongExprs.length > 0) {
       html += `<div class="section-title">❌ 다시 봐야 할 표현 (${wrongExprs.length}개)</div><div class="expr-list">`;
