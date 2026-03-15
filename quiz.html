@@ -326,6 +326,26 @@
   }
 
   @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(255,255,255,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:10px 0 28px; z-index:30;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:3px;
+  text-decoration:none; color:inherit; cursor:pointer;
+  transition:transform 0.15s;
+}
+.nav-item:active { transform:scale(0.88); }
+.nav-icon { font-size:21px; }
+.nav-lbl { font-size:10px; font-weight:700; color:#B0A8CC; }
+.nav-item.active .nav-lbl { color:#6C47FF; }
+.nav-dot { width:5px; height:5px; background:#6C47FF; border-radius:50%; margin-top:-2px; }
 </style>
   <script type="module" crossorigin src="./assets/quiz-DaVg_LxN.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
@@ -419,6 +439,31 @@
   </div>
 </div>
 
+
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="./index.html">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-lbl">홈</span>
+  </a>
+  <a class="nav-item" href="./sentences.html">
+    <span class="nav-icon">📖</span>
+    <span class="nav-lbl">문장</span>
+  </a>
+  <a class="nav-item active" href="./quiz.html">
+    <span class="nav-icon">🎮</span>
+    <span class="nav-lbl">퀴즈</span>
+    <div class="nav-dot"></div>
+  </a>
+  <a class="nav-item" href="./stats.html">
+    <span class="nav-icon">📊</span>
+    <span class="nav-lbl">통계</span>
+  </a>
+  <a class="nav-item" href="./settings.html">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-lbl">설정</span>
+  </a>
+</nav>
 
 </body>
 </html>
