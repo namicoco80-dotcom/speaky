@@ -1,0 +1,14 @@
+{
+  "name": "speaky",
+  "version": "1.0.0",
+  "description": "나만의 영어 표현 노트 & 자동 퀴즈 앱",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
