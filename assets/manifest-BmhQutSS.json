@@ -1,0 +1,57 @@
+{
+  "name": "SPEAKY — 나만의 영어 표현 노트",
+  "short_name": "SPEAKY",
+  "description": "내가 입력한 문장으로 퀴즈 자동화 공부하기",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8F0",
+  "theme_color": "#FF8C00",
+  "lang": "ko",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "./assets/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./assets/screenshot-main.png",
+      "sizes": "420x900",
+      "type": "image/png",
+      "label": "SPEAKY 메인화면"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "문장 추가",
+      "short_name": "추가",
+      "description": "새 영어 문장 입력",
+      "url": "./add.html",
+      "icons": [{ "src": "./assets/icon-72.png", "sizes": "72x72" }]
+    },
+    {
+      "name": "퀴즈 시작",
+      "short_name": "퀴즈",
+      "description": "바로 퀴즈 시작",
+      "url": "./quiz.html",
+      "icons": [{ "src": "./assets/icon-72.png", "sizes": "72x72" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

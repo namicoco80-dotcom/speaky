@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 단어장</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange:#FF8C00; --orange-light:#FFB347; --orange-dark:#E07800;
+    --purple:#7C4DFF; --green:#00C07A; --teal:#00ACC1;
+    --bg:#FFF8F0; --card:#FFFFFF; --text:#2D1B00; --text-muted:#A0876A;
+    --border:#F0E0CC; --shadow-card:0 4px 20px rgba(45,27,0,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; max-width:420px; margin:0 auto;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,179,71,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(124,77,255,0.08) 0%, transparent 40%);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    padding:52px 20px 16px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:1.5px solid var(--border);
+  }
+  .back-btn {
+    width:38px; height:38px; background:var(--card); border:none;
+    border-radius:12px; box-shadow:var(--shadow-card); font-size:18px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform 0.15s; flex-shrink:0;
+  }
+  .back-btn:active { transform:scale(0.9); }
+  .header-title {
+    font-family:'Baloo 2',cursive; font-size:22px; font-weight:800;
+    color:var(--orange); text-shadow:0 2px 0 var(--orange-dark); flex:1;
+  }
+  .total-badge {
+    background:var(--orange); color:white; font-size:12px; font-weight:800;
+    padding:4px 10px; border-radius:10px; box-shadow:0 3px 0 var(--orange-dark);
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position:relative; z-index:10; padding:14px 20px 0;
+  }
+  .search-input {
+    width:100%; background:var(--card); border:2px solid var(--border);
+    border-radius:14px; padding:12px 16px 12px 40px;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:600;
+    color:var(--text); outline:none; transition:border-color 0.2s;
+  }
+  .search-input:focus { border-color:var(--orange); }
+  .search-icon {
+    position:absolute; left:32px; top:50%; transform:translateY(-50%);
+    font-size:16px; pointer-events:none;
+  }
+
+  /* ── FILTER TABS ── */
+  .filter-scroll {
+    position:relative; z-index:10;
+    display:flex; gap:8px; padding:12px 20px 0;
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .filter-scroll::-webkit-scrollbar { display:none; }
+  .filter-chip {
+    flex-shrink:0; padding:6px 14px; border-radius:20px;
+    border:2px solid var(--border); background:var(--card);
+    font-size:12px; font-weight:800; color:var(--text-muted);
+    cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .filter-chip.active {
+    color:white; border-color:transparent;
+    box-shadow:0 3px 0 rgba(0,0,0,0.15);
+  }
+  .filter-chip[data-type="all"].active    { background:#FF8C00; }
+  .filter-chip[data-type="phrv"].active   { background:#7C4DFF; }
+  .filter-chip[data-type="idiom"].active  { background:#FF6B35; }
+  .filter-chip[data-type="expr"].active   { background:#00ACC1; }
+  .filter-chip[data-type="v"].active      { background:#00C07A; }
+  .filter-chip[data-type="n"].active      { background:#FF4757; }
+  .filter-chip[data-type="adj"].active    { background:#FFC107; color:#2D1B00 !important; }
+  .filter-chip[data-type="adv"].active    { background:#9C27B0; }
+
+  /* ── STATS ROW ── */
+  .stats-mini {
+    position:relative; z-index:10;
+    display:flex; gap:10px; padding:12px 20px 0;
+  }
+  .stat-mini {
+    flex:1; background:var(--card); border-radius:14px; padding:12px;
+    box-shadow:var(--shadow-card); text-align:center;
+  }
+  .stat-mini-num {
+    font-family:'Baloo 2',cursive; font-size:20px; font-weight:800;
+    color:var(--orange);
+  }
+  .stat-mini-label { font-size:10px; color:var(--text-muted); font-weight:700; margin-top:2px; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    position:relative; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 20px 8px;
+  }
+  .section-label {
+    font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:var(--text);
+    display:flex; align-items:center; gap:6px;
+  }
+  .sort-btn {
+    background:var(--card); border:1.5px solid var(--border);
+    border-radius:10px; padding:5px 10px;
+    font-size:11px; font-weight:800; color:var(--text-muted);
+    cursor:pointer;
+  }
+
+  /* ── VOCAB LIST ── */
+  .vocab-list {
+    position:relative; z-index:10;
+    padding:0 20px 120px;
+  }
+
+  .vocab-card {
+    background:var(--card); border-radius:18px; padding:16px 18px;
+    box-shadow:var(--shadow-card); margin-bottom:10px;
+    border-left:4px solid transparent;
+    transition:transform 0.15s;
+    cursor:pointer; animation:fadeUp 0.3s ease both;
+  }
+  .vocab-card:active { transform:scale(0.98); }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* type 색상 */
+  .vocab-card[data-type="phrv"]  { border-left-color:#7C4DFF; }
+  .vocab-card[data-type="idiom"] { border-left-color:#FF6B35; }
+  .vocab-card[data-type="expr"]  { border-left-color:#00ACC1; }
+  .vocab-card[data-type="v"]     { border-left-color:#00C07A; }
+  .vocab-card[data-type="n"]     { border-left-color:#FF4757; }
+  .vocab-card[data-type="adj"]   { border-left-color:#FFC107; }
+  .vocab-card[data-type="adv"]   { border-left-color:#9C27B0; }
+
+  .vocab-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .vocab-word {
+    font-family:'Baloo 2',cursive; font-size:17px; font-weight:800; color:var(--text);
+    line-height:1.2;
+  }
+  .type-badge {
+    flex-shrink:0; font-size:10px; font-weight:800;
+    padding:3px 8px; border-radius:8px; margin-top:2px;
+  }
+  .type-badge.phrv  { background:#F0EEFF; color:#7C4DFF; }
+  .type-badge.idiom { background:#FFF0E8; color:#FF6B35; }
+  .type-badge.expr  { background:#E0F7FA; color:#00ACC1; }
+  .type-badge.v     { background:#E8FFF4; color:#00C07A; }
+  .type-badge.n     { background:#FFF0F2; color:#FF4757; }
+  .type-badge.adj   { background:#FFFDE7; color:#F57F17; }
+  .type-badge.adv   { background:#F3E5F5; color:#9C27B0; }
+
+  .vocab-kr { font-size:13px; font-weight:700; color:var(--text-muted); margin-top:5px; }
+  .vocab-examples {
+    margin-top:10px; padding-top:10px;
+    border-top:1.5px solid var(--border);
+    display:none;
+  }
+  .vocab-card.expanded .vocab-examples { display:block; }
+  .example-item {
+    margin-bottom:8px; padding:8px 12px;
+    background:#FFFBF5; border-radius:10px;
+  }
+  .example-en { font-size:12px; font-weight:700; color:var(--text); line-height:1.4; }
+  .example-kr { font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+
+  /* ── QUIZ MINI BTN ── */
+  .quiz-mini-btn {
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:10px; padding:7px 12px;
+    background:var(--purple); color:white;
+    border:none; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    cursor:pointer; box-shadow:0 3px 0 #5533CC;
+  }
+  .quiz-mini-btn:active { transform:translateY(2px); box-shadow:0 1px 0 #5533CC; }
+
+  /* ── EMPTY ── */
+  .empty-state {
+    text-align:center; padding:60px 20px;
+    color:var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size:52px; margin-bottom:14px; }
+  .empty-state p { font-size:14px; font-weight:700; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:420px; background:white;
+    border-top:1.5px solid #F5E8D8;
+    display:flex; padding:10px 0 24px; z-index:30;
+  }
+  .nav-item {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; gap:3px; cursor:pointer;
+  }
+  .nav-icon { font-size:22px; }
+  .nav-label { font-size:10px; font-weight:700; color:#C0A88A; }
+  .nav-item.active .nav-label { color:var(--orange); }
+  .nav-dot { width:5px; height:5px; background:var(--orange); border-radius:50%; margin-top:-2px; }
+</style>
+  <script type="module" crossorigin src="./assets/vocab-DkojJaC-.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/storage-87WKI6EC.js">
+  <link rel="modulepreload" crossorigin href="./assets/expressionManager-DSltZ7hA.js">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="header-title">📚 단어장</div>
+  <div class="total-badge" id="totalBadge">0개</div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input class="search-input" id="searchInput" placeholder="단어 또는 뜻 검색..."
+    oninput="applyFilter()">
+</div>
+
+<!-- FILTER CHIPS -->
+<div class="filter-scroll" id="filterChips">
+  <div class="filter-chip active" data-type="all"    onclick="setType('all')">전체</div>
+  <div class="filter-chip"       data-type="phrv"   onclick="setType('phrv')">🔀 구동사</div>
+  <div class="filter-chip"       data-type="idiom"  onclick="setType('idiom')">💬 관용구</div>
+  <div class="filter-chip"       data-type="expr"   onclick="setType('expr')">✨ 표현</div>
+  <div class="filter-chip"       data-type="v"      onclick="setType('v')">⚡ 동사</div>
+  <div class="filter-chip"       data-type="n"      onclick="setType('n')">📦 명사</div>
+  <div class="filter-chip"       data-type="adj"    onclick="setType('adj')">🎨 형용사</div>
+  <div class="filter-chip"       data-type="adv"    onclick="setType('adv')">💨 부사</div>
+</div>
+
+<!-- STATS -->
+<div class="stats-mini">
+  <div class="stat-mini">
+    <div class="stat-mini-num" id="statTotal">–</div>
+    <div class="stat-mini-label">전체 단어</div>
+  </div>
+  <div class="stat-mini">
+    <div class="stat-mini-num" id="statPhrv">–</div>
+    <div class="stat-mini-label">구동사</div>
+  </div>
+  <div class="stat-mini">
+    <div class="stat-mini-num" id="statIdiom">–</div>
+    <div class="stat-mini-label">관용구</div>
+  </div>
+  <div class="stat-mini">
+    <div class="stat-mini-num" id="statExpr">–</div>
+    <div class="stat-mini-label">표현</div>
+  </div>
+</div>
+
+<!-- LIST -->
+<div class="section-header">
+  <div class="section-label">📖 단어 목록</div>
+  <button class="sort-btn" onclick="toggleSort()">정렬 ↕</button>
+</div>
+
+<div class="vocab-list" id="vocabList">
+  <!-- JS로 렌더링 -->
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item" onclick="location.href='index.html'"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></div>
+  <div class="nav-item"><span class="nav-icon">📖</span><span class="nav-label">문장</span></div>
+  <div class="nav-item"><span class="nav-icon">🎮</span><span class="nav-label">퀴즈</span></div>
+  <div class="nav-item active"><span class="nav-icon">📚</span><span class="nav-label" style="color:var(--orange)">단어장</span><div class="nav-dot"></div></div>
+  <div class="nav-item" onclick="location.href='settings.html'"><span class="nav-icon">⚙️</span><span class="nav-label">설정</span></div>
+</nav>
+
+</body>
+</html>

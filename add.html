@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 문장 추가</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<!-- compromise.js: 브라우저 로컬 NLP (품사·구동사 분석) -->
+<script src="https://unpkg.com/compromise@14.14.0/builds/compromise.js"></script>
+<style>
+  :root {
+    --orange:#FF8C00; --orange-light:#FFB347; --orange-dark:#E07800;
+    --purple:#7C4DFF; --green:#00C07A; --green-dark:#009960;
+    --red:#FF4757; --teal:#00ACC1;
+    --bg:#FFF8F0; --card:#FFFFFF; --text:#2D1B00; --text-muted:#A0876A;
+    --border:#F0E0CC;
+    --shadow-card:0 4px 20px rgba(45,27,0,0.08);
+    --shadow-green-3d:0 5px 0 var(--green-dark), 0 7px 14px rgba(0,192,122,0.25);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; max-width:420px; margin:0 auto;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,179,71,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(124,77,255,0.08) 0%, transparent 40%);
+  }
+  .header {
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    padding:52px 20px 16px; display:flex; align-items:center; gap:12px;
+    border-bottom:1.5px solid var(--border);
+  }
+  .back-btn {
+    width:38px; height:38px; background:var(--card); border:none;
+    border-radius:12px; box-shadow:var(--shadow-card); font-size:18px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform 0.15s; flex-shrink:0;
+  }
+  .back-btn:active { transform:scale(0.9); }
+  .header-title {
+    font-family:'Baloo 2',cursive; font-size:22px; font-weight:800;
+    color:var(--orange); text-shadow:0 2px 0 var(--orange-dark);
+  }
+  .tab-bar {
+    position:relative; z-index:10; display:flex;
+    margin:20px 20px 0; background:var(--card);
+    border-radius:16px; padding:4px; box-shadow:var(--shadow-card);
+  }
+  .tab-btn {
+    flex:1; padding:10px 0; border:none; background:transparent;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; border-radius:12px; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .tab-btn.active { background:var(--orange); color:white; box-shadow:0 3px 0 var(--orange-dark); }
+  .panel { position:relative; z-index:1; padding:16px 20px 120px; }
+  .panel-section { display:none; }
+  .panel-section.active { display:block; }
+  .form-card {
+    background:var(--card); border-radius:20px; padding:18px;
+    box-shadow:var(--shadow-card); margin-bottom:12px;
+  }
+  .field-label {
+    font-size:11px; font-weight:800; color:var(--text-muted);
+    letter-spacing:0.8px; text-transform:uppercase; margin-bottom:8px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .req { color:var(--red); font-size:14px; }
+  textarea, input[type=text] {
+    width:100%; font-family:'Nunito',sans-serif; font-size:15px;
+    font-weight:600; color:var(--text); background:#FFFBF5;
+    border:2px solid var(--border); border-radius:12px; padding:12px 14px;
+    outline:none; transition:border-color 0.2s, box-shadow 0.2s; resize:none;
+  }
+  textarea:focus, input[type=text]:focus {
+    border-color:var(--orange); box-shadow:0 0 0 3px rgba(255,140,0,0.12);
+  }
+  textarea { min-height:80px; line-height:1.6; }
+  .char-count { font-size:11px; color:var(--text-muted); font-weight:700; text-align:right; margin-top:4px; }
+  .char-count.warn { color:var(--red); }
+
+  /* 한글 번역 */
+  .kr-input-wrap { position:relative; }
+  .kr-input-wrap input { padding-right:86px; }
+  .translate-btn {
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:var(--teal); border:none; border-radius:9px;
+    padding:6px 10px; font-size:11px; font-weight:800; color:white;
+    cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .translate-btn:active { transform:translateY(-50%) scale(0.92); }
+  .translate-btn.loading { background:#aaa; pointer-events:none; }
+  .translate-status { font-size:11px; font-weight:700; margin-top:5px; min-height:16px; }
+  .translate-status.ok   { color:var(--green); }
+  .translate-status.fail { color:var(--red); }
+  .translate-status.ing  { color:var(--teal); }
+
+  /* 분석 카드 */
+  .analysis-loading {
+    display:none; align-items:center; gap:8px; padding:8px 0;
+    font-size:12px; font-weight:700; color:var(--purple);
+  }
+  .analysis-loading.show { display:flex; }
+  .dots { display:flex; gap:3px; }
+  .dots span {
+    width:6px; height:6px; background:var(--purple); border-radius:50%;
+    animation:dotB 1s infinite;
+  }
+  .dots span:nth-child(2){animation-delay:.15s}
+  .dots span:nth-child(3){animation-delay:.3s}
+  @keyframes dotB{0%,80%,100%{transform:scale(0.6)}40%{transform:scale(1)}}
+
+  .analysis-card {
+    background:linear-gradient(135deg,#F0EEFF,#EAF3FF);
+    border:1.5px solid #C4B5FF; border-radius:14px; padding:14px;
+    margin-top:10px; display:none;
+  }
+  .analysis-card.show { display:block; }
+  .analysis-title {
+    font-size:11px; font-weight:800; color:var(--purple);
+    letter-spacing:0.8px; text-transform:uppercase; margin-bottom:10px;
+  }
+  .sub-lbl {
+    font-size:10px; font-weight:800; color:var(--text-muted);
+    letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px;
+  }
+  .sub-lbl+.sub-lbl, .chunk-row+.sub-lbl, .vocab-row+.sub-lbl { margin-top:10px; }
+  .chunk-row, .vocab-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .chunk-tag {
+    background:white; border:1.5px solid #C4B5FF; border-radius:10px;
+    padding:5px 10px; font-size:12px; font-weight:700; color:var(--purple);
+  }
+  .vocab-tag {
+    background:white; border:1.5px solid #B2DFDB; border-radius:10px;
+    padding:5px 10px; font-size:12px; font-weight:700; color:#00796B;
+    display:flex; align-items:center; gap:5px;
+  }
+  .vocab-tag .vt {
+    font-size:9px; font-weight:800; color:#999;
+    background:#F0F0F0; border-radius:5px; padding:1px 5px;
+  }
+
+  /* 폴더 */
+  .folder-row { display:flex; gap:7px; flex-wrap:wrap; margin-top:4px; }
+  .folder-opt {
+    padding:5px 13px; border-radius:20px; border:2px solid var(--border);
+    background:var(--card); font-size:12px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; transition:all 0.15s;
+  }
+  .folder-opt.active {
+    background:var(--orange); border-color:var(--orange); color:white;
+    box-shadow:0 3px 0 var(--orange-dark);
+  }
+
+  /* 유튜브 */
+  .yt-wrap { position:relative; }
+  .yt-wrap input { padding-right:90px; }
+  .yt-paste {
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:var(--red); border:none; border-radius:9px;
+    padding:6px 10px; font-size:11px; font-weight:800; color:white; cursor:pointer;
+  }
+  .yt-preview {
+    display:none; gap:12px; align-items:center;
+    background:#FFFBF5; border:1.5px solid var(--border);
+    border-radius:12px; padding:12px; margin-top:10px;
+  }
+  .yt-preview.show { display:flex; }
+  .yt-thumb {
+    width:60px; height:40px; background:#111; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex-shrink:0;
+  }
+  .yt-title { font-size:12px; font-weight:800; color:var(--text); }
+  .yt-meta  { font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+  .yt-list  { margin-top:10px; }
+  .yt-row {
+    display:flex; align-items:center; gap:8px;
+    background:#FFFBF5; border:1.5px solid var(--border);
+    border-radius:12px; padding:10px 12px; margin-bottom:8px;
+  }
+  .yt-num {
+    width:20px; height:20px; background:var(--orange); color:white;
+    border-radius:6px; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .yt-row input { flex:1; background:transparent; border:none; box-shadow:none; padding:0; font-size:13px; }
+  .yt-row input:focus { border:none; box-shadow:none; }
+  .yt-del { background:none; border:none; font-size:15px; color:var(--text-muted); cursor:pointer; }
+  .add-row {
+    width:100%; padding:10px; background:transparent;
+    border:2px dashed var(--border); border-radius:12px;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    color:var(--text-muted); cursor:pointer; transition:all 0.15s;
+  }
+  .add-row:hover { border-color:var(--orange); color:var(--orange); }
+
+  /* 저장 */
+  .save-area {
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:420px; padding:14px 20px 32px;
+    background:linear-gradient(transparent, var(--bg) 40%); z-index:40;
+  }
+  .save-btn {
+    width:100%; padding:17px; border:none; border-radius:18px;
+    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
+    background:var(--green); box-shadow:var(--shadow-green-3d);
+    cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .save-btn:active { transform:translateY(4px); box-shadow:0 1px 0 var(--green-dark); }
+
+  /* 토스트 */
+  .toast {
+    position:fixed; bottom:110px; left:50%; transform:translateX(-50%) translateY(14px);
+    background:#1A1208; color:white; padding:11px 20px; border-radius:14px;
+    font-size:13px; font-weight:800; opacity:0; transition:all 0.25s;
+    z-index:100; white-space:nowrap; pointer-events:none;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+  <script type="module" crossorigin src="./assets/add-CZsE_gfO.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/storage-87WKI6EC.js">
+  <link rel="modulepreload" crossorigin href="./assets/expressionManager-DSltZ7hA.js">
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="header-title">✏️ 문장 추가</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabM" onclick="switchTab('manual')">✏️ 직접 입력</button>
+  <button class="tab-btn"        id="tabY" onclick="switchTab('youtube')">▶️ 유튜브 등록</button>
+</div>
+
+<div class="panel">
+
+  <!-- 직접 입력 -->
+  <div class="panel-section active" id="tab-manual">
+
+    <div class="form-card">
+      <div class="field-label">🇺🇸 영어 문장 <span class="req">*</span></div>
+      <textarea id="enInput" placeholder="예) I was so frustrated that I couldn't do anything."
+        oninput="onEnInput(this)" maxlength="300"></textarea>
+      <div class="char-count" id="enCount">0 / 300</div>
+      <div class="analysis-loading" id="anaLoading">
+        <div class="dots"><span></span><span></span><span></span></div>
+        청크·단어 분석 중 (로컬)...
+      </div>
+      <div class="analysis-card" id="anaCard">
+        <div class="analysis-title">✨ 자동 분석 결과 (로컬)</div>
+        <div class="sub-lbl">🧩 의미 덩어리</div>
+        <div class="chunk-row" id="chunkRow"></div>
+        <div class="sub-lbl">📖 핵심 단어·구동사</div>
+        <div class="vocab-row" id="vocabRow"></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">
+        🇰🇷 한글 뜻
+        <span style="font-size:10px;color:var(--teal);font-weight:700;text-transform:none;">MyMemory 자동번역</span>
+      </div>
+      <div class="kr-input-wrap">
+        <input type="text" id="krInput" placeholder="영어 입력 후 자동 번역됩니다" maxlength="200">
+        <button class="translate-btn" id="tBtn" onclick="translateNow()">🌐 재번역</button>
+      </div>
+      <div class="translate-status" id="tStatus"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">
+        📝 메모
+        <span style="font-size:10px;font-weight:600;text-transform:none;">선택사항</span>
+      </div>
+      <textarea id="memoInput" placeholder="예) so ~ that ... 구문: 너무 ~해서 ...하다"
+        maxlength="400" style="min-height:64px;"
+        oninput="updateCount(this,'memoCount',400)"></textarea>
+      <div class="char-count" id="memoCount">0 / 400</div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">📁 폴더</div>
+      <div class="folder-row" id="folderRow"></div>
+    </div>
+
+  </div>
+
+  <!-- 유튜브 등록 -->
+  <div class="panel-section" id="tab-youtube">
+
+    <div class="form-card">
+      <div class="field-label">🔗 유튜브 링크</div>
+      <div class="yt-wrap">
+        <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=..."
+          oninput="onYtInput(this)">
+        <button class="yt-paste" onclick="pasteUrl()">📋 붙여넣기</button>
+      </div>
+      <div class="yt-preview" id="ytPreview">
+        <div class="yt-thumb">▶️</div>
+        <div>
+          <div class="yt-title" id="ytTitle"></div>
+          <div class="yt-meta"  id="ytMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">📁 폴더</div>
+      <div class="folder-row" id="folderRowYt"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="field-label">🇺🇸 등록할 문장들</div>
+      <div class="yt-list" id="ytList"></div>
+      <button class="add-row" onclick="addYtRow()">+ 문장 추가</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="save-area">
+  <button class="save-btn" onclick="save()">✅ 저장하기</button>
+</div>
+<div class="toast" id="toast"></div>
+
+
+</body>
+</html>
