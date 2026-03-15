@@ -96,16 +96,21 @@ function touchStreak() {
  * @param {number}  [params.score]       점수 (0~100)
  */
 export function recordResult({ expressionId, quizType, correct, score = correct ? 100 : 0 }) {
+  // expressionId 없으면 기록 스킵
+  if (!expressionId) return;
+
   const progress = getProgress();
 
   // quiz_history 추가 (최대 500개 유지)
   progress.quiz_history = progress.quiz_history ?? [];
   progress.quiz_history.push({
     id         : expressionId,
+    expressionId,
     type       : quizType,
     correct,
     score,
     ts         : new Date().toISOString(),
+    date       : new Date().toISOString(), // review.html 호환용
   });
   if (progress.quiz_history.length > 500) {
     progress.quiz_history.splice(0, progress.quiz_history.length - 500);
