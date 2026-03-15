@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 내 문장</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#6C47FF; --p-dark:#4B2FD4; --p-light:#F0EBFF;
+  --g:#00C48C; --g-dark:#009966; --g-light:#E6FFF7;
+  --r:#FF4C6A; --r-dark:#CC2244; --r-light:#FFF0F3;
+  --y:#FFB800; --y-light:#FFF8E0;
+  --bg:#F7F5FF; --card:#FFFFFF; --text:#1A1035;
+  --text-2:#6B5FA0; --text-3:#B0A8CC; --border:#EAE5FF;
+  --sh:0 2px 12px rgba(108,71,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Nunito',sans-serif; background:var(--bg);
+  color:var(--text); min-height:100vh; max-width:430px; margin:0 auto;
+}
+
+/* HEADER */
+.header {
+  position:sticky; top:0; z-index:50; background:var(--bg);
+  padding:16px 20px 12px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.back-btn {
+  width:36px; height:36px; background:var(--card);
+  border:1.5px solid var(--border); border-radius:11px;
+  font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh); flex-shrink:0;
+}
+.back-btn:active { transform:scale(0.92); }
+.header-title {
+  font-family:'Baloo 2',cursive; font-size:20px; font-weight:800;
+  color:var(--text); flex:1;
+}
+.add-btn {
+  width:36px; height:36px; background:var(--p);
+  border:none; border-radius:11px; font-size:20px; color:white;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 4px 12px rgba(108,71,255,0.35);
+}
+.add-btn:active { transform:scale(0.92); }
+
+/* SEARCH */
+.search-wrap {
+  padding:12px 20px 0; position:relative;
+}
+.search-input {
+  width:100%; background:var(--card); border:1.5px solid var(--border);
+  border-radius:14px; padding:11px 16px 11px 40px;
+  font-family:'Nunito',sans-serif; font-size:14px; font-weight:600;
+  color:var(--text); outline:none;
+}
+.search-input:focus { border-color:var(--p); }
+.search-icon {
+  position:absolute; left:32px; top:50%; transform:translateY(-20%);
+  font-size:16px; pointer-events:none;
+}
+
+/* FILTER TABS */
+.filter-tabs {
+  display:flex; gap:7px; padding:10px 20px 0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.filter-tabs::-webkit-scrollbar { display:none; }
+.f-tab {
+  flex-shrink:0; padding:5px 13px; border-radius:20px;
+  border:1.5px solid var(--border); background:var(--card);
+  font-size:12px; font-weight:700; color:var(--text-2);
+  cursor:pointer; white-space:nowrap; transition:all 0.15s;
+}
+.f-tab.active {
+  background:var(--p); border-color:var(--p); color:white;
+  box-shadow:0 3px 10px rgba(108,71,255,0.3);
+}
+
+/* STATS BAR */
+.stats-bar {
+  display:flex; gap:8px; padding:12px 20px 0;
+}
+.stat-chip {
+  flex:1; background:var(--card); border:1.5px solid var(--border);
+  border-radius:12px; padding:10px; text-align:center;
+  box-shadow:var(--sh);
+}
+.stat-chip-num {
+  font-family:'Baloo 2',cursive; font-size:20px; font-weight:800;
+  color:var(--p); line-height:1;
+}
+.stat-chip-lbl { font-size:10px; color:var(--text-3); font-weight:700; margin-top:2px; }
+
+/* LIST */
+.list-wrap { padding:12px 20px 100px; }
+
+.expr-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:18px; padding:16px;
+  box-shadow:var(--sh); margin-bottom:10px;
+  animation:fadeUp 0.25s ease both;
+  position:relative; overflow:hidden;
+}
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.expr-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  border-radius:3px 0 0 3px;
+}
+.expr-card.source-manual::before  { background:var(--p); }
+.expr-card.source-youtube::before { background:var(--r); }
+.expr-card.source-builtin::before { background:var(--g); }
+
+.expr-top {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+}
+.expr-en {
+  font-size:15px; font-weight:800; color:var(--text);
+  line-height:1.4; flex:1;
+}
+.expr-actions { display:flex; gap:6px; flex-shrink:0; }
+.action-btn {
+  width:30px; height:30px; border:none; border-radius:9px;
+  font-size:14px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; transition:all 0.15s;
+}
+.action-btn:active { transform:scale(0.88); }
+.btn-fav   { background:var(--y-light); }
+.btn-fav.on { background:var(--y); }
+.btn-quiz  { background:var(--p-light); color:var(--p); font-size:12px; font-weight:800; width:auto; padding:0 10px; }
+.btn-del   { background:var(--r-light); }
+
+.expr-kr {
+  font-size:12px; color:var(--text-2); font-weight:600;
+  margin-top:5px; line-height:1.4;
+}
+.expr-memo {
+  font-size:11px; color:var(--text-3); font-weight:600;
+  margin-top:4px; font-style:italic;
+}
+.expr-footer {
+  display:flex; align-items:center; gap:7px; margin-top:8px;
+}
+.expr-badge {
+  font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px;
+}
+.badge-manual  { background:var(--p-light); color:var(--p); }
+.badge-youtube { background:var(--r-light); color:var(--r-dark); }
+.badge-builtin { background:var(--g-light);  color:var(--g-dark); }
+.badge-learned { background:#FFF8E0; color:#996600; }
+.expr-date { font-size:10px; color:var(--text-3); font-weight:600; }
+
+/* 편집 인풋 */
+.edit-wrap {
+  display:none; margin-top:10px; padding-top:10px;
+  border-top:1px solid var(--border);
+}
+.edit-wrap.show { display:block; }
+.edit-input {
+  width:100%; font-family:'Nunito',sans-serif; font-size:13px; font-weight:600;
+  color:var(--text); background:#F7F5FF; border:1.5px solid var(--border);
+  border-radius:10px; padding:9px 12px; outline:none; margin-bottom:6px;
+}
+.edit-input:focus { border-color:var(--p); }
+.edit-save {
+  width:100%; padding:9px; border:none; border-radius:10px;
+  background:var(--p); color:white; font-family:'Nunito',sans-serif;
+  font-size:13px; font-weight:800; cursor:pointer;
+}
+
+/* EMPTY */
+.empty {
+  text-align:center; padding:60px 20px;
+  color:var(--text-3);
+}
+.empty-icon { font-size:48px; margin-bottom:14px; }
+.empty-text { font-size:14px; font-weight:700; line-height:1.6; }
+.empty-btn {
+  margin-top:20px; padding:12px 24px;
+  background:var(--p); color:white; border:none; border-radius:14px;
+  font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+  cursor:pointer; box-shadow:0 4px 0 var(--p-dark);
+}
+
+/* DELETE CONFIRM */
+.delete-toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px);
+  background:#1A1035; color:white; border-radius:14px; padding:12px 18px;
+  display:flex; align-items:center; gap:10px;
+  font-size:13px; font-weight:700;
+  opacity:0; transition:all 0.25s; z-index:100; white-space:nowrap;
+}
+.delete-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.delete-undo {
+  background:var(--r); color:white; border:none; border-radius:8px;
+  padding:4px 11px; font-size:12px; font-weight:800; cursor:pointer;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(255,255,255,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:10px 0 28px; z-index:30;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:3px; cursor:pointer;
+}
+.nav-icon { font-size:21px; }
+.nav-lbl { font-size:10px; font-weight:700; color:var(--text-3); }
+.nav-item.active .nav-lbl { color:var(--p); }
+.nav-dot { width:5px; height:5px; background:var(--p); border-radius:50%; margin-top:-2px; }
+</style>
+  <script type="module" crossorigin src="./assets/sentences-D8Pi9-c5.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
+  <link rel="modulepreload" crossorigin href="./assets/expressionManager-BKBnNKJn.js">
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <div class="header-title">📖 내 문장</div>
+  <button class="add-btn" onclick="location.href='add.html'">+</button>
+</div>
+
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input class="search-input" id="searchInput" placeholder="문장 또는 뜻 검색..."
+    oninput="applyFilter()">
+</div>
+
+<div class="filter-tabs" id="filterTabs">
+  <div class="f-tab active" data-filter="all"     onclick="setFilter('all')">전체</div>
+  <div class="f-tab"        data-filter="manual"  onclick="setFilter('manual')">✏️ 직접추가</div>
+  <div class="f-tab"        data-filter="youtube" onclick="setFilter('youtube')">▶️ 유튜브</div>
+  <div class="f-tab"        data-filter="builtin" onclick="setFilter('builtin')">🌟 원어민30</div>
+  <div class="f-tab"        data-filter="fav"     onclick="setFilter('fav')">⭐ 즐겨찾기</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-chip">
+    <div class="stat-chip-num" id="statTotal">–</div>
+    <div class="stat-chip-lbl">전체</div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-chip-num" id="statMine">–</div>
+    <div class="stat-chip-lbl">내 문장</div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-chip-num" id="statLearned">–</div>
+    <div class="stat-chip-lbl">학습완료</div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-chip-num" id="statFav">–</div>
+    <div class="stat-chip-lbl">즐겨찾기</div>
+  </div>
+</div>
+
+<div class="list-wrap" id="listWrap"></div>
+
+<div class="delete-toast" id="deletToast">
+  🗑️ 삭제됨
+  <button class="delete-undo" onclick="undoDelete()">되돌리기</button>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item" onclick="location.href='index.html'">
+    <span class="nav-icon">🏠</span><span class="nav-lbl">홈</span>
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon">📖</span>
+    <span class="nav-lbl" style="color:var(--p)">문장</span>
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" onclick="location.href='quiz.html'">
+    <span class="nav-icon">🎮</span><span class="nav-lbl">퀴즈</span>
+  </div>
+  <div class="nav-item" onclick="location.href='stats.html'">
+    <span class="nav-icon">📊</span><span class="nav-lbl">통계</span>
+  </div>
+  <div class="nav-item" onclick="location.href='settings.html'">
+    <span class="nav-icon">⚙️</span><span class="nav-lbl">설정</span>
+  </div>
+</nav>
+
+</body>
+</html>
