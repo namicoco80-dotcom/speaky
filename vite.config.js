@@ -49,6 +49,7 @@ export default defineConfig({
         settings  : resolve(__dirname, 'settings.html'),
         sentences   : resolve(__dirname, 'sentences.html'),
         onboarding  : resolve(__dirname, 'onboarding.html'),
+        vocab_quiz  : resolve(__dirname, 'vocab_quiz.html'),
         review      : resolve(__dirname, 'review.html'),
       },
       output: {
