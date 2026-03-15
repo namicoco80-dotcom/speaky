@@ -37,17 +37,21 @@ function pick(arr, n) {
  * @returns {Array}
  */
 export function prepareExpressions(count = 10, folderId = null) {
-  const all      = getExpressions({ folder_id: folderId, includeBuiltin: true });
-  const allIds   = all.map(e => e.id);
+  const all = getExpressions({ folder_id: folderId, includeBuiltin: true });
+  const allIds = all.map(e => e.id);
   const unlearned = getUnlearnedIds(allIds);
 
-  // 학습 안 된 것 우선, 부족하면 전체에서 채움
-  const unlearnedExprs = all.filter(e => unlearned.includes(e.id));
-  const learnedExprs   = all.filter(e => !unlearned.includes(e.id));
+  // 우선순위: 1) 사용자 추가 문장(미학습) 2) 사용자 추가 문장(학습) 3) 내장 문장
+  const userUnlearned  = all.filter(e => e.source !== 'builtin' && unlearned.includes(e.id));
+  const userLearned    = all.filter(e => e.source !== 'builtin' && !unlearned.includes(e.id));
+  const builtinUnlearn = all.filter(e => e.source === 'builtin' && unlearned.includes(e.id));
+  const builtinLearn   = all.filter(e => e.source === 'builtin' && !unlearned.includes(e.id));
 
   const pool = [
-    ...shuffle(unlearnedExprs),
-    ...shuffle(learnedExprs),
+    ...shuffle(userUnlearned),
+    ...shuffle(userLearned),
+    ...shuffle(builtinUnlearn),
+    ...shuffle(builtinLearn),
   ].slice(0, count);
 
   return pool;
