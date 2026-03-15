@@ -748,32 +748,90 @@ function showFeedback({ correct, feedback }) {
   const card = document.getElementById('feedbackCard');
   if (!card) return;
 
+  // ── 효과음 (Web Audio API) ──
+  playSound(correct);
+
+  // ── 현재 문장 데이터 가져오기 ──
+  const expr = currentQ;
+  const sentence = expr.sentence ?? expr.pairs?.[0]?.en ?? '';
+  const kr       = expr.kr ?? expr.pairs?.[0]?.kr ?? '';
+  const memo     = expr.memo ?? '';
+  const vocab    = expr.vocab ?? [];
+
+  // ── 카드 구성 ──
   card.className = `feedback-card show ${correct ? 'correct-fb' : 'wrong-fb'}`;
-  const emoji = correct ? '🎉' : '💪';
-  const title = correct ? 'Great job! 🐶' : "Don't worry, let's check this!";
 
-  // 피드백 메시지 파싱 (메모 분리)
-  const lines    = feedback.split('\n');
-  const bodyText = lines[0];
-  const memoText = lines.find(l => l.startsWith('💡'));
+  const vocabHtml = vocab.length
+    ? `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+        ${vocab.map(v => `<span style="background:rgba(255,255,255,0.6);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:#333;">${v.word ?? v.phrase} <span style="color:#888;">${v.type}</span></span>`).join('')}
+       </div>`
+    : '';
 
-  card.innerHTML = `
-    <span class="feedback-emoji">${emoji}</span>
-    <div class="feedback-title">${title}</div>
-    <div class="feedback-body">${bodyText}</div>
-    ${memoText ? `<div class="feedback-memo">${memoText}</div>` : ''}`;
+  const memoHtml = memo
+    ? `<div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;line-height:1.5;">💡 ${memo}</div>`
+    : '';
 
-  // 타이핑 인풋 상태 표시
+  if (correct) {
+    card.innerHTML = `
+      <div style="font-size:24px;margin-bottom:6px;">🎉</div>
+      <div class="feedback-title">Great job! 잘 했어요!</div>
+      <div class="feedback-body" style="margin-top:6px;font-size:14px;font-weight:700;">${sentence}</div>
+      ${kr ? `<div style="font-size:12px;opacity:0.85;margin-top:3px;">${kr}</div>` : ''}
+      ${memoHtml}
+      ${vocabHtml}`;
+  } else {
+    card.innerHTML = `
+      <div style="font-size:24px;margin-bottom:6px;">💪</div>
+      <div class="feedback-title">이렇게 써요!</div>
+      <div class="feedback-body" style="margin-top:6px;font-size:15px;font-weight:800;">${sentence}</div>
+      ${kr ? `<div style="font-size:13px;opacity:0.85;margin-top:4px;">${kr}</div>` : ''}
+      ${memoHtml}
+      ${vocabHtml}
+      <button onclick="speakText('${sentence.replace(/'/g,"\\'")}');this.style.opacity=0.6;" 
+        style="margin-top:10px;background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);
+               border-radius:10px;padding:6px 14px;font-size:12px;font-weight:700;color:white;cursor:pointer;">
+        🔊 정답 듣기
+      </button>`;
+  }
+
   const input = document.getElementById('typingInput');
   if (input) input.classList.add(correct ? 'correct' : 'wrong');
 
   document.getElementById('submitArea').style.display = 'none';
   document.getElementById('nextArea').classList.add('show');
 
-  // 마지막 문제면 버튼 텍스트 변경
   if (qIdx >= questions.length - 1) {
     document.querySelector('.next-btn').textContent = '결과 보기 🏆';
   }
+}
+
+// ── 효과음 ──
+function playSound(correct) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (correct) {
+      // 정답: 밝고 경쾌한 2음
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, ctx.currentTime);       // C5
+      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.12); // G5
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+    } else {
+      // 오답: 낮고 짧은 소리
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.25);
+    }
+  } catch(e) { /* 소리 안 나도 앱 동작에 영향 없음 */ }
 }
 
 // ── 다음 문제 ──
