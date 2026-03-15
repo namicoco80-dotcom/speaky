@@ -506,7 +506,7 @@
     box-shadow: 0 4px 0 var(--red-dark);
   }
 </style>
-  <script type="module" crossorigin src="./assets/settings-CbPUXH8v.js"></script>
+  <script type="module" crossorigin src="./assets/settings-CXb88plb.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
   <link rel="modulepreload" crossorigin href="./assets/settingsManager-B44Cy7pt.js">
@@ -561,6 +561,22 @@
       <div class="section-name">학습 환경 설정</div>
     </div>
     <div class="card">
+
+      <!-- 폰트 사이즈 -->
+      <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="row-icon">🔤</span>
+          <div class="row-body">
+            <div class="row-label">글자 크기</div>
+            <div class="row-desc" id="fontSizeDesc">보통</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding-left:38px;width:100%;">
+          <button onclick="setFontSize('small',this)"  id="fsSmall"  style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;background:var(--card);">작게 A</button>
+          <button onclick="setFontSize('medium',this)" id="fsMedium" style="flex:1;padding:8px;border:1.5px solid var(--orange);border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;background:var(--orange-light);">보통 A</button>
+          <button onclick="setFontSize('large',this)"  id="fsLarge"  style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;background:var(--card);">크게 A</button>
+        </div>
+      </div>
 
       <!-- 퀴즈 포맷 온/오프 -->
       <div class="row no-tap" style="flex-direction:column; align-items:flex-start; gap:10px;">

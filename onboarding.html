@@ -44,6 +44,7 @@ body {
   font-size:88px; margin-bottom:24px;
   animation:float 3s ease-in-out infinite;
 }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 @keyframes float {
   0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}
 }
@@ -138,6 +139,15 @@ body {
   cursor:pointer; text-decoration:none;
 }
 </style>
+
+<script>
+// 폰트 사이즈 설정 적용 (전역)
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
 </head>
 <body>
 

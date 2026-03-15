@@ -327,6 +327,22 @@
 
   @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
+  /* ── 난이도 선택 ── */
+  .diff-row {
+    display:flex; gap:8px; margin-bottom:16px;
+  }
+  .diff-chip {
+    flex:1; padding:10px 6px; border:1.5px solid var(--border);
+    border-radius:12px; background:var(--card);
+    font-size:12px; font-weight:800; color:var(--text-muted);
+    cursor:pointer; text-align:center; transition:all 0.15s;
+    box-shadow:var(--shadow-card);
+  }
+  .diff-chip.active.easy   { background:#E6FFF7; border-color:#00C48C; color:#009966; }
+  .diff-chip.active.normal { background:var(--p-light,#F0EBFF); border-color:#6C47FF; color:#6C47FF; }
+  .diff-chip.active.hard   { background:#FFF0F3; border-color:#FF4C6A; color:#CC2244; }
+  .diff-label { font-size:10px; display:block; margin-top:2px; font-weight:600; }
+
 /* ── BOTTOM NAV ── */
 .bottom-nav {
   position:fixed; bottom:0; left:50%; transform:translateX(-50%);
@@ -347,7 +363,16 @@
 .nav-item.active .nav-lbl { color:#6C47FF; }
 .nav-dot { width:5px; height:5px; background:#6C47FF; border-radius:50%; margin-top:-2px; }
 </style>
-  <script type="module" crossorigin src="./assets/quiz-D5wbJ0XI.js"></script>
+
+<script>
+// 폰트 사이즈 설정 적용 (전역)
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
+  <script type="module" crossorigin src="./assets/quiz-C8_MCDu8.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
   <link rel="modulepreload" crossorigin href="./assets/expressionManager-BKBnNKJn.js">
@@ -368,9 +393,21 @@
 <div class="screen active" id="screenSelect">
   <div style="padding:20px 20px 100px;">
 
-    <div style="padding:10px 0 16px;">
+    <div style="padding:10px 0 12px;">
       <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--text);">어떤 퀴즈 할까요? 🎯</div>
-      <div style="font-size:13px;color:var(--text-muted);font-weight:600;margin-top:4px;">학습 안 된 문장 우선 출제돼요</div>
+      <div style="font-size:13px;color:var(--text-muted);font-weight:600;margin-top:4px;">오답 문장 우선 출제돼요</div>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:var(--text-muted);margin-bottom:8px;">📊 난이도</div>
+    <div class="diff-row">
+      <div class="diff-chip easy active" onclick="setDiff('easy',this)">
+        🌱 쉬움<span class="diff-label">5문제</span>
+      </div>
+      <div class="diff-chip normal" onclick="setDiff('normal',this)">
+        🎯 보통<span class="diff-label">10문제</span>
+      </div>
+      <div class="diff-chip hard" onclick="setDiff('hard',this)">
+        🔥 어려움<span class="diff-label">15문제</span>
+      </div>
     </div>
 
     <div class="type-card chunk"  onclick="startQuiz('chunk_scramble')">
