@@ -489,6 +489,7 @@ body::before {
 <!-- QUIZ TYPE -->
 <div class="sec-hdr">
   <div class="sec-title">🎮 퀴즈 방식</div>
+  <a href="./review.html" style="font-size:12px;font-weight:700;color:var(--p);background:var(--p-light);border-radius:8px;padding:3px 10px;text-decoration:none;">오늘 요약 📋</a>
 </div>
 <div class="quiz-scroll">
   <button class="quiz-chip active">
@@ -544,6 +545,12 @@ body::before {
   </a>
 </nav>
 
+<script>
+// 첫 실행 시 온보딩으로 이동
+if (!localStorage.getItem('speaky_onboarded')) {
+  location.replace('./onboarding.html');
+}
+</script>
 
 
 </body>
