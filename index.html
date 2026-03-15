@@ -378,6 +378,7 @@ body::before {
 .nav-item {
   flex:1; display:flex; flex-direction:column;
   align-items:center; gap:3px; cursor:pointer; transition:transform 0.15s;
+  text-decoration:none; color:inherit;
 }
 .nav-item:active { transform:scale(0.88); }
 .nav-icon { font-size:21px; }
@@ -514,33 +515,28 @@ body::before {
 </div>
 
 <nav class="bottom-nav">
-  <div class="nav-item active">
+  <a class="nav-item active" href="./index.html">
     <span class="nav-icon">🏠</span>
     <span class="nav-lbl">홈</span>
     <div class="nav-dot"></div>
-  </div>
-<div class="nav-item" onclick="location.href='sentences.html'">
+  </a>
+  <a class="nav-item" href="./sentences.html">
     <span class="nav-icon">📖</span>
     <span class="nav-lbl">문장</span>
-  </div>
-  <div class="nav-item" onclick="location.href='quiz.html'">
+  </a>
+  <a class="nav-item" href="./quiz.html">
     <span class="nav-icon">🎮</span>
     <span class="nav-lbl">퀴즈</span>
-  </div>
-  <div class="nav-item" onclick="location.href='stats.html'">
+  </a>
+  <a class="nav-item" href="./stats.html">
     <span class="nav-icon">📊</span>
     <span class="nav-lbl">통계</span>
-  </div>
-  <div class="nav-item" onclick="location.href='settings.html'">
+  </a>
+  <a class="nav-item" href="./settings.html">
     <span class="nav-icon">⚙️</span>
     <span class="nav-lbl">설정</span>
-  </div>
+  </a>
 </nav>
-
-<script type="module">
-import { isActivated } from './js/data/licenseManager.js';
-if (!isActivated()) location.replace('./license.html');
-</script>
 
 <script type="module" src="js/main.js"></script>
 
