@@ -457,7 +457,16 @@ window.startQuiz = function(type) {
   };
   document.getElementById('headerTitle').textContent = typeNames[type] ?? '🎮 퀴즈';
 
-  questions = generateSession({ quizType: type, count: 10 });
+  // URL에 single 파라미터 있으면 해당 문장만
+  const singleId = new URLSearchParams(location.search).get('single');
+  if (singleId) {
+    const { getExpressionById } = window._speakyModules ?? {};
+    const expr = getExpressionById?.(singleId);
+    questions = expr ? [generateChunkScramble(expr)] : [];
+  } else {
+    questions = generateSession({ quizType: type, count: 10 });
+  }
+
   if (!questions.length) {
     alert('문장이 없어요! 먼저 문장을 추가해주세요 ✏️');
     return;
@@ -466,6 +475,13 @@ window.startQuiz = function(type) {
   showScreen('screenQuiz');
   renderQuestion();
 };
+
+// URL 파라미터로 자동 시작
+(function autoStart() {
+  const params = new URLSearchParams(location.search);
+  const type   = params.get('type');
+  if (type) setTimeout(() => startQuiz(type), 100);
+})();
 
 // ── 문제 렌더링 ──
 function renderQuestion() {
