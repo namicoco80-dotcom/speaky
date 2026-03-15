@@ -196,3 +196,20 @@ export function getTotalAccuracy() {
   if (!history.length) return 0;
   return Math.round(history.filter(h => h.correct).length / history.length * 100);
 }
+
+/**
+ * 최근 오답 문장 ID 목록 (재출제 우선순위용)
+ * 최근 3회 퀴즈에서 틀린 문장들
+ * @param {string[]} allIds
+ * @returns {string[]}
+ */
+export function getRecentWrongIds(allIds) {
+  const history = getProgress().quiz_history ?? [];
+  // 최근 30개 기록에서 오답 추출
+  const recent = history.slice(-30);
+  const wrongIds = new Set(
+    recent.filter(h => !h.correct).map(h => h.id)
+  );
+  // 그 중 allIds에 포함된 것만
+  return allIds.filter(id => wrongIds.has(id));
+}
