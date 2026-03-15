@@ -1103,7 +1103,6 @@ function checkSpelling(en) {
     'completly':'completely','definately':'definitely','seperate':'separate',
     'occured':'occurred','recieve':'receive','beleive':'believe',
     'untill':'until','wich':'which','thier':'their','alot':'a lot',
-    'dont':'don't','cant':'can't','wont':'won't','im':'I'm',
   };
   Object.entries(typos).forEach(([wrong, right]) => {
     const re = new RegExp('\\b' + wrong + '\\b', 'i');
