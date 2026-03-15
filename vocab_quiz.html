@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 단어 퀴즈</title>
+<script>
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small:'13px', medium:'15px', large:'17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#6C47FF; --p-dark:#4B2FD4; --p-light:#F0EBFF; --p-mid:#9B7FFF;
+  --g:#00C48C; --g-dark:#009966; --g-light:#E6FFF7;
+  --r:#FF4C6A; --r-dark:#CC2244; --r-light:#FFF0F3;
+  --y:#FFB800; --y-dark:#CC8A00; --y-light:#FFF8E0;
+  --t:#00ACC1; --t-dark:#007A8A;
+  --bg:#F7F5FF; --card:#FFFFFF; --text:#1A1035;
+  --text-2:#6B5FA0; --text-3:#B0A8CC; --border:#EAE5FF;
+  --sh:0 2px 12px rgba(108,71,255,0.08);
+  --sh2:0 6px 24px rgba(108,71,255,0.14);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Nunito',sans-serif; background:var(--bg);
+  color:var(--text); min-height:100vh; max-width:430px; margin:0 auto;
+}
+
+/* HEADER */
+.header {
+  position:sticky; top:0; z-index:50; background:var(--bg);
+  padding:16px 20px 12px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.back-btn {
+  width:36px; height:36px; background:var(--card);
+  border:1.5px solid var(--border); border-radius:11px;
+  font-size:16px; cursor:pointer; text-decoration:none;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh); flex-shrink:0;
+}
+.header-title { font-family:'Baloo 2',cursive; font-size:20px; font-weight:800; color:var(--text); flex:1; }
+.progress-text { font-size:13px; font-weight:800; color:var(--text-3); }
+
+/* 진행 바 */
+.prog-bar { height:4px; background:#E0D8FF; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--p),var(--p-mid)); transition:width 0.4s ease; }
+
+/* SCREEN */
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* 선택 화면 */
+#screenSelect { padding:20px 20px 100px; }
+.mode-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:20px; padding:20px; margin-bottom:12px;
+  cursor:pointer; box-shadow:var(--sh);
+  display:flex; align-items:center; gap:16px;
+  transition:transform 0.15s;
+}
+.mode-card:active { transform:scale(0.98); }
+.mode-icon { font-size:40px; flex-shrink:0; }
+.mode-name { font-family:'Baloo 2',cursive; font-size:17px; font-weight:800; color:var(--text); }
+.mode-desc { font-size:12px; color:var(--text-3); font-weight:600; margin-top:3px; }
+.mode-badge {
+  margin-left:auto; font-size:10px; font-weight:800;
+  padding:3px 9px; border-radius:9px; flex-shrink:0;
+}
+.mode-card.meaning .mode-badge { background:var(--p-light); color:var(--p); }
+.mode-card.spell   .mode-badge { background:var(--y-light); color:var(--y-dark); }
+.mode-card.meaning { border-top:3px solid var(--p); }
+.mode-card.spell   { border-top:3px solid var(--y); }
+
+/* 퀴즈 진행 화면 */
+#screenQuiz { padding:16px 20px 160px; }
+
+.quiz-card {
+  background:var(--card); border-radius:20px; padding:22px;
+  box-shadow:var(--sh2); margin-bottom:14px;
+  animation:fadeUp 0.3s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.quiz-type-badge {
+  display:inline-block; font-size:11px; font-weight:800;
+  padding:3px 10px; border-radius:8px; margin-bottom:12px;
+  letter-spacing:0.5px;
+}
+.quiz-word {
+  font-family:'Baloo 2',cursive; font-size:28px; font-weight:800;
+  color:var(--text); margin-bottom:6px; line-height:1.3;
+}
+.quiz-type-lbl {
+  display:inline-block; font-size:11px; font-weight:700;
+  background:var(--p-light); color:var(--p);
+  padding:2px 9px; border-radius:7px; margin-bottom:14px;
+}
+.quiz-hint { font-size:13px; color:var(--text-2); font-weight:600; line-height:1.5; }
+
+/* 4지선다 */
+.choices { display:flex; flex-direction:column; gap:10px; }
+.choice-btn {
+  width:100%; padding:15px 18px; border:2px solid var(--border);
+  border-radius:16px; background:var(--card);
+  font-family:'Nunito',sans-serif; font-size:15px; font-weight:700;
+  color:var(--text); cursor:pointer; text-align:left;
+  transition:all 0.15s; box-shadow:var(--sh);
+}
+.choice-btn:active { transform:scale(0.98); }
+.choice-btn.correct { background:var(--g-light); border-color:var(--g); color:var(--g-dark); }
+.choice-btn.wrong   { background:var(--r-light); border-color:var(--r); color:var(--r-dark); }
+.choice-btn.show-correct { background:var(--g-light); border-color:var(--g); color:var(--g-dark); }
+.choice-btn:disabled { cursor:default; }
+
+/* 타이핑 */
+.spell-kr {
+  font-size:20px; font-weight:800; color:var(--text);
+  margin-bottom:16px; line-height:1.4;
+}
+.spell-hint { font-size:12px; color:var(--text-3); margin-bottom:12px; font-weight:600; }
+.spell-input {
+  width:100%; font-family:'Baloo 2',cursive; font-size:20px; font-weight:800;
+  color:var(--text); background:#FAFAFE; border:2px solid var(--border);
+  border-radius:14px; padding:14px 16px; outline:none; text-align:center;
+  transition:border-color 0.2s;
+}
+.spell-input:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(108,71,255,0.12); }
+.spell-input.correct { border-color:var(--g); background:var(--g-light); }
+.spell-input.wrong   { border-color:var(--r); background:var(--r-light); }
+
+/* 피드백 카드 */
+.feedback-card {
+  border-radius:18px; padding:18px 20px; margin-bottom:14px;
+  display:none; animation:fadeUp 0.3s ease both;
+}
+.feedback-card.show { display:block; }
+.feedback-card.correct-fb { background:linear-gradient(135deg,#E8FFF4,#D0F8E8); border:1.5px solid var(--g); }
+.feedback-card.wrong-fb   { background:linear-gradient(135deg,#FFF0F2,#FFE4E8); border:1.5px solid var(--r); }
+.fb-emoji { font-size:26px; margin-bottom:8px; display:block; }
+.fb-title { font-family:'Baloo 2',cursive; font-size:17px; font-weight:800; margin-bottom:8px; }
+.fb-word  { font-size:20px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.fb-kr    { font-size:14px; color:var(--text-2); font-weight:600; margin-bottom:10px; }
+.fb-example {
+  background:rgba(255,255,255,0.6); border-radius:12px; padding:12px 14px;
+  margin-bottom:8px;
+}
+.fb-ex-en { font-size:13px; font-weight:700; color:var(--text); line-height:1.5; }
+.fb-ex-kr { font-size:12px; color:var(--text-2); font-weight:600; margin-top:3px; }
+.fb-tts {
+  background:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.6);
+  border-radius:10px; padding:6px 14px; font-size:12px; font-weight:700;
+  color:var(--text); cursor:pointer; margin-top:4px;
+}
+
+/* 버튼 영역 */
+.btn-area {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px; padding:14px 20px 90px;
+  background:linear-gradient(transparent, var(--bg) 40%); z-index:50;
+}
+.submit-btn {
+  width:100%; padding:16px; border:none; border-radius:16px;
+  font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:white;
+  background:var(--p); box-shadow:0 5px 0 var(--p-dark);
+  cursor:pointer; transition:all 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.submit-btn:active { transform:translateY(3px); box-shadow:0 2px 0 var(--p-dark); }
+.submit-btn.green  { background:var(--g); box-shadow:0 5px 0 var(--g-dark); }
+.submit-btn.gray   { background:#C8C8C8; box-shadow:0 5px 0 #A0A0A0; pointer-events:none; }
+
+/* 결과 화면 */
+#screenResult { padding:24px 20px 100px; text-align:center; }
+.result-hero {
+  background:linear-gradient(135deg,var(--p),#8B6FFF);
+  border-radius:22px; padding:28px;
+  box-shadow:0 6px 0 var(--p-dark), 0 10px 24px rgba(108,71,255,0.3);
+  margin-bottom:16px;
+}
+.result-emoji { font-size:52px; display:block; margin-bottom:10px; }
+.result-score { font-family:'Baloo 2',cursive; font-size:56px; font-weight:800; color:white; line-height:1; }
+.result-label { font-size:14px; color:rgba(255,255,255,0.8); font-weight:700; margin-top:4px; }
+.result-stats { display:flex; gap:10px; margin-bottom:20px; }
+.result-stat {
+  flex:1; background:var(--card); border-radius:14px; padding:14px;
+  box-shadow:var(--sh);
+}
+.result-stat-num { font-family:'Baloo 2',cursive; font-size:24px; font-weight:800; color:var(--p); }
+.result-stat-lbl { font-size:11px; color:var(--text-3); font-weight:700; margin-top:2px; }
+.result-actions { display:flex; flex-direction:column; gap:10px; }
+.btn-retry {
+  padding:16px; border:none; border-radius:16px;
+  font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:white;
+  background:var(--p); box-shadow:0 5px 0 var(--p-dark); cursor:pointer;
+}
+.btn-home {
+  padding:14px; border:2px solid var(--border); border-radius:16px;
+  font-family:'Baloo 2',cursive; font-size:15px; font-weight:800; color:var(--text-2);
+  background:var(--card); cursor:pointer;
+}
+
+/* 하단 네비 */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(255,255,255,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:10px 0 28px; z-index:30;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  text-decoration:none; color:inherit; cursor:pointer;
+}
+.nav-icon { font-size:21px; }
+.nav-lbl { font-size:10px; font-weight:700; color:var(--text-3); }
+.nav-item.active .nav-lbl { color:var(--p); }
+.nav-dot { width:5px; height:5px; background:var(--p); border-radius:50%; margin-top:-2px; }
+</style>
+  <script type="module" crossorigin src="./assets/vocab_quiz-CFo8hDYs.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
+  <link rel="modulepreload" crossorigin href="./assets/expressionManager-BKBnNKJn.js">
+  <link rel="modulepreload" crossorigin href="./assets/settingsManager-B44Cy7pt.js">
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" id="backBtn" href="./vocab.html">←</a>
+  <div class="header-title" id="headerTitle">🔤 단어 퀴즈</div>
+  <div class="progress-text" id="progressText"></div>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<!-- 화면 1: 모드 선택 -->
+<div class="screen active" id="screenSelect">
+  <div style="padding:20px 20px 100px;">
+    <div style="padding:8px 0 18px;">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--text);">단어 퀴즈 선택 🔤</div>
+      <div style="font-size:13px;color:var(--text-3);font-weight:600;margin-top:4px;">단어장에 쌓인 단어로 퀴즈를 풀어요</div>
+    </div>
+
+    <div class="mode-card meaning" onclick="startQuiz('meaning')">
+      <div class="mode-icon">🎯</div>
+      <div>
+        <div class="mode-name">뜻 맞추기</div>
+        <div class="mode-desc">영어 단어/표현 보고 한글 뜻 선택</div>
+      </div>
+      <div class="mode-badge">4지선다</div>
+    </div>
+
+    <div class="mode-card spell" onclick="startQuiz('spell')">
+      <div class="mode-icon">✍️</div>
+      <div>
+        <div class="mode-name">철자 쓰기</div>
+        <div class="mode-desc">한글 뜻 보고 영어 단어 타이핑</div>
+      </div>
+      <div class="mode-badge">타이핑</div>
+    </div>
+  </div>
+</div>
+
+<!-- 화면 2: 퀴즈 진행 -->
+<div class="screen" id="screenQuiz">
+  <div id="quizContent" style="padding:16px 20px 160px;"></div>
+  <div class="btn-area" id="btnArea">
+    <button class="submit-btn gray" id="submitBtn" onclick="submitAnswer()">✅ 정답 확인</button>
+  </div>
+</div>
+
+<!-- 화면 3: 결과 -->
+<div class="screen" id="screenResult">
+  <div class="result-hero">
+    <span class="result-emoji" id="resultEmoji">🏆</span>
+    <div class="result-score" id="resultScore">–</div>
+    <div class="result-label">점</div>
+  </div>
+  <div class="result-stats">
+    <div class="result-stat"><div class="result-stat-num" id="resCorrect">–</div><div class="result-stat-lbl">정답 ✅</div></div>
+    <div class="result-stat"><div class="result-stat-num" id="resWrong">–</div><div class="result-stat-lbl">오답 ❌</div></div>
+    <div class="result-stat"><div class="result-stat-num" id="resTotal">–</div><div class="result-stat-lbl">총 문제</div></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn-retry" onclick="retryQuiz()">🔄 다시 하기</button>
+    <a class="btn-home" href="./vocab.html">📚 단어장으로</a>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span class="nav-lbl">홈</span></a>
+  <a class="nav-item" href="./sentences.html"><span class="nav-icon">📖</span><span class="nav-lbl">문장</span></a>
+  <a class="nav-item active" href="./quiz.html"><span class="nav-icon">🎮</span><span class="nav-lbl">퀴즈</span><div class="nav-dot"></div></a>
+  <a class="nav-item" href="./stats.html"><span class="nav-icon">📊</span><span class="nav-lbl">통계</span></a>
+  <a class="nav-item" href="./settings.html"><span class="nav-icon">⚙️</span><span class="nav-lbl">설정</span></a>
+</nav>
+
+</body>
+</html>
