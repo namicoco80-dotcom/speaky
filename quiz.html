@@ -91,7 +91,7 @@
   #screenQuiz { padding:20px 20px 100px; }
 
   .quiz-card {
-    background:var(--card); border-radius:22px; padding:22px;
+    background:var(--card); border-radius:22px; padding:20px 22px 22px;
     box-shadow:var(--shadow-card); margin-bottom:14px;
     animation:cardIn 0.3s ease both;
   }
@@ -122,27 +122,29 @@
 
   /* ── 1. 덩어리 조립 ── */
   .chunk-answer-area {
-    min-height:60px; border:2px dashed var(--border);
-    border-radius:14px; padding:12px; margin-bottom:12px;
-    display:flex; flex-wrap:wrap; gap:7px; align-items:center;
-    transition:border-color 0.2s;
+    min-height:70px; border:2.5px dashed #B39DDB;
+    border-radius:16px; padding:14px; margin-bottom:14px;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    background:#FAFAFE; transition:border-color 0.2s;
   }
   .chunk-answer-area.drag-over { border-color:var(--purple); background:#F8F5FF; }
   .chunk-pool {
-    display:flex; flex-wrap:wrap; gap:7px; margin-bottom:4px;
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px;
   }
+  /* 미배치 타일: 밝은 보라 배경 + 진한 글자 → 가독성 UP */
   .chunk-tile {
-    background:white; border:2px solid var(--purple);
-    border-radius:12px; padding:8px 14px;
-    font-size:13px; font-weight:800; color:var(--purple);
+    background:#F0EEFF; border:2.5px solid #B39DDB;
+    border-radius:14px; padding:10px 16px;
+    font-size:15px; font-weight:800; color:#311B92;
     cursor:pointer; user-select:none;
     transition:transform 0.1s, box-shadow 0.1s;
-    box-shadow:0 3px 0 var(--purple-dark);
+    box-shadow:0 4px 0 #9575CD;
   }
-  .chunk-tile:active { transform:translateY(2px); box-shadow:0 1px 0 var(--purple-dark); }
+  .chunk-tile:active { transform:translateY(3px); box-shadow:0 1px 0 #9575CD; }
+  /* 배치된 타일: 오렌지로 변경 (명확한 구분) */
   .chunk-tile.placed {
-    background:var(--purple); color:white;
-    box-shadow:0 3px 0 var(--purple-dark);
+    background:var(--orange); border-color:var(--orange-dark);
+    color:white; box-shadow:0 4px 0 var(--orange-dark);
   }
   .chunk-tile.correct-anim { animation:tileCorrect 0.4s ease; }
   .chunk-tile.wrong-anim   { animation:tileWrong 0.3s ease; }
@@ -242,9 +244,9 @@
   }
   .next-btn-area.show { display:block; }
   .next-btn {
-    width:100%; padding:17px; border:none; border-radius:18px;
-    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
-    background:var(--purple); box-shadow:0 5px 0 var(--purple-dark);
+    width:100%; padding:14px; border:none; border-radius:16px;
+    font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:white;
+    background:var(--purple); box-shadow:0 4px 0 var(--purple-dark);
     cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
     display:flex; align-items:center; justify-content:center; gap:8px;
   }
@@ -257,9 +259,9 @@
     background:linear-gradient(transparent, var(--bg) 40%); z-index:39;
   }
   .submit-btn {
-    width:100%; padding:17px; border:none; border-radius:18px;
-    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
-    background:var(--orange); box-shadow:0 5px 0 var(--orange-dark);
+    width:100%; padding:15px; border:none; border-radius:16px;
+    font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:white;
+    background:var(--orange); box-shadow:0 4px 0 var(--orange-dark);
     cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
     display:flex; align-items:center; justify-content:center; gap:8px;
   }
