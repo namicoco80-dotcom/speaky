@@ -4,503 +4,565 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚡ SPEAKY</title>
-<!-- PWA -->
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#FF8C00">
+<meta name="theme-color" content="#6C47FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SPEAKY">
 <link rel="apple-touch-icon" href="./assets/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --orange: #FF8C00;
-    --orange-light: #FFB347;
-    --orange-dark: #E07800;
-    --purple: #7C4DFF;
-    --purple-light: #B388FF;
-    --bg: #FFF8F0;
-    --card: #FFFFFF;
-    --text: #2D1B00;
-    --text-muted: #A0876A;
-    --shadow-orange: 0 8px 24px rgba(255,140,0,0.35);
-    --shadow-card: 0 4px 20px rgba(45,27,0,0.10);
-    --shadow-3d: 0 6px 0 #E07800, 0 8px 16px rgba(255,140,0,0.3);
-    --shadow-purple-3d: 0 6px 0 #5533CC, 0 8px 16px rgba(124,77,255,0.3);
-  }
+:root {
+  --p:        #6C47FF;
+  --p-dark:   #4B2FD4;
+  --p-light:  #F0EBFF;
+  --p-mid:    #9B7FFF;
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  --g:        #00C48C;
+  --g-dark:   #009966;
+  --g-light:  #E6FFF7;
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    max-width: 420px;
-    margin: 0 auto;
-    position: relative;
-    overflow-x: hidden;
-  }
+  --y:        #FFB800;
+  --y-dark:   #CC8A00;
+  --y-light:  #FFF8E0;
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(circle at 15% 20%, rgba(255,179,71,0.18) 0%, transparent 40%),
-      radial-gradient(circle at 85% 70%, rgba(124,77,255,0.12) 0%, transparent 40%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  --r:        #FF4C6A;
+  --r-dark:   #CC2244;
+  --r-light:  #FFF0F3;
 
-  /* ─── HEADER ─── */
-  .header {
-    position: relative; z-index: 10;
-    padding: 52px 20px 0;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .logo {
-    font-family: 'Baloo 2', cursive;
-    font-size: 30px; font-weight: 800;
-    color: var(--orange);
-    letter-spacing: -0.5px;
-    text-shadow: 0 3px 0 var(--orange-dark);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .logo .bolt {
-    font-size: 26px;
-    filter: drop-shadow(0 2px 4px rgba(255,140,0,0.5));
-    animation: boltPulse 2s ease-in-out infinite;
-  }
-  @keyframes boltPulse {
-    0%,100% { transform: scale(1) rotate(-5deg); }
-    50%      { transform: scale(1.15) rotate(5deg); }
-  }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .streak-badge {
-    background: linear-gradient(135deg, #FF6B35, #FF8C00);
-    color: white; font-weight: 800; font-size: 13px;
-    padding: 6px 12px; border-radius: 20px;
-    box-shadow: 0 3px 0 #CC5500, 0 4px 12px rgba(255,107,53,0.4);
-    display: flex; align-items: center; gap: 4px;
-  }
-  .settings-btn {
-    width: 38px; height: 38px;
-    background: white; border: none; border-radius: 12px;
-    box-shadow: var(--shadow-card); font-size: 18px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.15s;
-  }
-  .settings-btn:active { transform: scale(0.92); }
+  --bg:       #F7F5FF;
+  --card:     #FFFFFF;
+  --text:     #1A1035;
+  --text-2:   #6B5FA0;
+  --text-3:   #B0A8CC;
+  --border:   #EAE5FF;
 
-  /* ─── SUBTITLE ─── */
-  .subtitle-area { position: relative; z-index: 10; padding: 10px 22px 0; }
-  .subtitle-area p { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+  --sh1: 0 2px 8px rgba(108,71,255,0.08);
+  --sh2: 0 8px 28px rgba(108,71,255,0.14);
+  --sh3: 0 4px 0 var(--p-dark);
+}
 
-  /* ─── TODAY EXPRESSION ─── */
-  .today-card {
-    position: relative; z-index: 10;
-    margin: 18px 20px 0;
-    background: linear-gradient(135deg, var(--orange), var(--orange-light));
-    border-radius: 22px; padding: 20px 22px;
-    box-shadow: var(--shadow-3d);
-    overflow: hidden; cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    animation: slideUp 0.5s ease both;
-  }
-  .today-card:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #E07800, 0 4px 8px rgba(255,140,0,0.25);
-  }
-  .today-card::before {
-    content: '✨ 오늘의 표현';
-    position: absolute; top: 14px; right: 18px;
-    font-size: 11px; font-weight: 800;
-    color: rgba(255,255,255,0.75); letter-spacing: 0.5px;
-  }
-  .today-card::after {
-    content: '';
-    position: absolute; bottom: -30px; right: -20px;
-    width: 120px; height: 120px;
-    background: rgba(255,255,255,0.12); border-radius: 50%;
-  }
-  .today-en {
-    font-family: 'Baloo 2', cursive;
-    font-size: 20px; font-weight: 700;
-    color: white; line-height: 1.3; margin-top: 4px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  }
-  .today-kr {
-    font-size: 13px; color: rgba(255,255,255,0.85);
-    margin-top: 6px; font-weight: 600;
-  }
-  .today-play {
-    position: absolute; bottom: 16px; right: 20px;
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,0.25); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; backdrop-filter: blur(4px); z-index: 2;
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  /* ─── STATS ─── */
-  .stats-row {
-    position: relative; z-index: 10;
-    display: flex; gap: 10px;
-    margin: 14px 20px 0;
-    animation: slideUp 0.5s 0.1s ease both;
-  }
-  .stat-card {
-    flex: 1; background: var(--card);
-    border-radius: 16px; padding: 14px 12px;
-    box-shadow: var(--shadow-card); text-align: center;
-    border: 2px solid transparent; transition: transform 0.15s;
-  }
-  .stat-card:active { transform: scale(0.95); }
-  .stat-num {
-    font-family: 'Baloo 2', cursive;
-    font-size: 24px; font-weight: 800; color: var(--orange); line-height: 1;
-  }
-  .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
-  .stat-card.progress {
-    flex: 1.4; display: flex; flex-direction: column;
-    justify-content: center; align-items: flex-start; padding: 14px 16px;
-  }
-  .stat-card.progress .stat-label { text-align: left; margin-bottom: 8px; }
-  .progress-bar-wrap {
-    width: 100%; height: 8px; background: #FFE4C0;
-    border-radius: 8px; overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--orange), var(--orange-light));
-    border-radius: 8px; transition: width 0.8s ease;
-  }
-  .progress-pct { font-size: 13px; font-weight: 800; color: var(--orange); margin-top: 4px; }
+body {
+  font-family:'Nunito', sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  max-width:430px;
+  margin:0 auto;
+  overflow-x:hidden;
+}
 
-  /* ─── SECTION TITLE ─── */
-  .section-title {
-    position: relative; z-index: 10;
-    padding: 22px 22px 0;
-    font-family: 'Baloo 2', cursive;
-    font-size: 18px; font-weight: 800; color: var(--text);
-    display: flex; align-items: center; gap: 6px;
-  }
+/* 배경 */
+body::before {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at -10% -5%,  rgba(108,71,255,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 110% 100%,  rgba(0,196,140,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50%  50%,   rgba(255,184,0,0.04) 0%, transparent 60%);
+}
 
-  /* ─── FOLDER CHIPS ─── */
-  .folder-scroll {
-    position: relative; z-index: 10;
-    display: flex; gap: 8px;
-    padding: 10px 20px 0;
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .folder-scroll::-webkit-scrollbar { display: none; }
-  .folder-chip {
-    flex-shrink: 0; background: var(--card);
-    border: 2px solid #F0E0CC; border-radius: 20px;
-    padding: 6px 14px; font-size: 12px; font-weight: 700;
-    color: var(--text-muted); cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .folder-chip.active {
-    background: var(--orange); border-color: var(--orange);
-    color: white; box-shadow: 0 3px 0 var(--orange-dark);
-  }
+/* ───── HEADER ───── */
+.header {
+  position:relative; z-index:10;
+  padding:52px 22px 0;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo {
+  display:flex; align-items:center; gap:9px;
+}
+.logo-badge {
+  width:36px; height:36px; border-radius:12px;
+  background:linear-gradient(145deg, var(--p), #9B7FFF);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  box-shadow:0 4px 12px rgba(108,71,255,0.35);
+  animation:pulse-badge 3s ease-in-out infinite;
+}
+@keyframes pulse-badge {
+  0%,100%{box-shadow:0 4px 12px rgba(108,71,255,0.35)}
+  50%{box-shadow:0 4px 20px rgba(108,71,255,0.55)}
+}
+.logo-name {
+  font-family:'Baloo 2',cursive;
+  font-size:22px; font-weight:800; color:var(--text);
+  letter-spacing:-0.3px;
+}
+.header-actions { display:flex; gap:8px; align-items:center; }
+.streak-tag {
+  display:flex; align-items:center; gap:4px;
+  background:linear-gradient(135deg,#FFF3CC,#FFE080);
+  border:1.5px solid #FFD040;
+  border-radius:24px; padding:5px 13px;
+  font-size:12px; font-weight:800; color:#996600;
+  box-shadow:0 2px 8px rgba(255,184,0,0.25);
+}
+.hdr-btn {
+  width:36px; height:36px;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:11px; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:var(--sh1); transition:transform 0.15s;
+}
+.hdr-btn:active { transform:scale(0.91); }
 
-  /* ─── MENU GRID ─── */
-  .menu-grid {
-    position: relative; z-index: 10;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; margin: 12px 20px 0;
-    animation: slideUp 0.5s 0.2s ease both;
-  }
-  .menu-btn {
-    background: var(--card); border: none; border-radius: 20px;
-    padding: 20px 16px; text-align: left; cursor: pointer;
-    box-shadow: var(--shadow-card);
-    transition: transform 0.15s, box-shadow 0.15s;
-    position: relative; overflow: hidden;
-  }
-  .menu-btn:active { transform: translateY(3px); box-shadow: 0 1px 8px rgba(45,27,0,0.08); }
-  .menu-btn .menu-icon { font-size: 32px; display: block; margin-bottom: 10px; }
-  .menu-btn .menu-name {
-    font-family: 'Baloo 2', cursive; font-size: 15px;
-    font-weight: 800; color: var(--text); display: block; line-height: 1.2;
-  }
-  .menu-btn .menu-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 3px; display: block; }
-  .menu-btn .menu-count {
-    position: absolute; top: 14px; right: 14px;
-    font-size: 11px; font-weight: 800;
-    padding: 3px 8px; border-radius: 10px;
-    background: #FFF0DC; color: var(--orange);
-  }
-  .menu-btn.quiz  { border-top: 3px solid var(--purple); }
-  .menu-btn.vocab { border-top: 3px solid #00C07A; }
-  .menu-btn.add   { border-top: 3px solid var(--orange); }
-  .menu-btn.youtube { border-top: 3px solid #FF4757; }
+/* ───── TODAY CARD ───── */
+.today-card {
+  position:relative; z-index:10;
+  margin:18px 22px 0;
+  border-radius:24px; overflow:hidden;
+  cursor:pointer;
+  transition:transform 0.18s;
+}
+.today-card:active { transform:scale(0.98); }
+.today-bg {
+  background:linear-gradient(140deg, #6C47FF 0%, #9B7FFF 60%, #C4A8FF 100%);
+  padding:22px 22px 18px;
+  position:relative;
+}
+.today-bg::after {
+  content:'';
+  position:absolute; bottom:-1px; left:0; right:0; height:40px;
+  background:linear-gradient(to bottom, transparent, rgba(108,71,255,0.15));
+}
+/* 배경 도형 장식 */
+.today-bg::before {
+  content:'';
+  position:absolute; top:-20px; right:-20px;
+  width:120px; height:120px; border-radius:50%;
+  background:rgba(255,255,255,0.07);
+}
+.today-dot {
+  position:absolute; bottom:30px; left:22px;
+  width:80px; height:80px; border-radius:50%;
+  background:rgba(255,255,255,0.05);
+}
+.today-label {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:20px; padding:4px 11px;
+  font-size:11px; font-weight:700; color:rgba(255,255,255,0.9);
+  letter-spacing:0.3px; margin-bottom:14px;
+  backdrop-filter:blur(4px);
+}
+.today-en {
+  font-family:'Baloo 2', cursive;
+  font-size:20px; font-weight:700;
+  color:#FFFFFF; line-height:1.4;
+  text-shadow:0 1px 4px rgba(0,0,0,0.12);
+  position:relative; z-index:1;
+}
+.today-kr {
+  font-size:13px; font-weight:600;
+  color:rgba(255,255,255,0.78);
+  margin-top:6px; position:relative; z-index:1;
+}
+.today-footer {
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px);
+  padding:11px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,0.15);
+}
+.play-btn {
+  display:flex; align-items:center; gap:7px;
+  font-size:13px; font-weight:700; color:white;
+}
+.play-circle {
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+}
+.today-hint { font-size:11px; color:rgba(255,255,255,0.55); font-weight:600; }
 
-  /* ─── QUIZ CHIPS ─── */
-  .quiz-scroll {
-    position: relative; z-index: 10;
-    display: flex; gap: 10px;
-    padding: 12px 20px 0;
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .quiz-scroll::-webkit-scrollbar { display: none; }
-  .quiz-chip {
-    flex-shrink: 0;
-    background: var(--card); border: 2px solid #F0E0CC;
-    border-radius: 16px; padding: 12px 16px;
-    cursor: pointer; text-align: center;
-    transition: all 0.15s; min-width: 72px;
-  }
-  .quiz-chip.active {
-    background: var(--purple); border-color: var(--purple);
-    box-shadow: 0 4px 0 #5533CC;
-  }
-  .chip-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-  .chip-name {
-    font-size: 11px; font-weight: 800; color: var(--text-muted); line-height: 1.3;
-  }
-  .quiz-chip.active .chip-name { color: white; }
+/* ───── STATS ROW ───── */
+.stats-row {
+  position:relative; z-index:10;
+  display:flex; gap:10px;
+  margin:12px 22px 0;
+}
+.stat-card {
+  flex:1; background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:18px; padding:14px 12px;
+  box-shadow:var(--sh1); text-align:center;
+  transition:transform 0.15s;
+}
+.stat-card:active { transform:scale(0.95); }
+.stat-val {
+  font-family:'Baloo 2',cursive;
+  font-size:26px; font-weight:800;
+  color:var(--p); line-height:1;
+}
+.stat-lbl {
+  font-size:10px; font-weight:700;
+  color:var(--text-3); margin-top:3px; letter-spacing:0.3px;
+}
+.stat-card.prog-card {
+  flex:1.5; text-align:left; padding:14px 14px;
+}
+.stat-card.prog-card .stat-lbl { margin-bottom:7px; }
+.prog-track {
+  height:7px; background:var(--p-light);
+  border-radius:7px; overflow:hidden;
+}
+.prog-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg, var(--p), var(--p-mid));
+  border-radius:7px; transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.prog-label {
+  font-size:12px; font-weight:800;
+  color:var(--p); margin-top:5px;
+}
 
-  /* ─── START BUTTON ─── */
-  .start-area { position: relative; z-index: 10; padding: 16px 20px 0; }
-  .start-btn {
-    width: 100%; padding: 18px;
-    font-family: 'Baloo 2', cursive;
-    font-size: 18px; font-weight: 800; color: white;
-    background: var(--purple); border: none; border-radius: 18px;
-    cursor: pointer; box-shadow: var(--shadow-purple-3d);
-    transition: transform 0.15s, box-shadow 0.15s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .start-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #5533CC, 0 4px 8px rgba(124,77,255,0.25);
-  }
+/* ───── SECTION HDR ───── */
+.sec-hdr {
+  position:relative; z-index:10;
+  padding:22px 22px 0;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sec-title {
+  font-family:'Baloo 2',cursive;
+  font-size:17px; font-weight:800; color:var(--text);
+}
+.sec-link {
+  font-size:12px; font-weight:700; color:var(--p);
+  background:var(--p-light); border-radius:8px; padding:3px 10px;
+}
 
-  /* ─── MASCOT ─── */
-  .mascot-area {
-    position: fixed; bottom: 80px; right: 20px;
-    z-index: 20; animation: float 3s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%,100% { transform: translateY(0px); }
-    50%      { transform: translateY(-8px); }
-  }
-  .mascot-bubble {
-    background: white; border-radius: 14px 14px 4px 14px;
-    padding: 8px 12px; font-size: 12px; font-weight: 700;
-    color: var(--orange); box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-    margin-bottom: 6px; text-align: center; white-space: nowrap;
-  }
-  .mascot-img { font-size: 52px; display: block; text-align: center; }
+/* ───── FOLDER CHIPS ───── */
+.folder-scroll {
+  position:relative; z-index:10;
+  display:flex; gap:7px; padding:10px 22px 0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.folder-scroll::-webkit-scrollbar { display:none; }
+.folder-chip {
+  flex-shrink:0;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:22px; padding:6px 15px;
+  font-size:12px; font-weight:700; color:var(--text-2);
+  cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  box-shadow:var(--sh1);
+}
+.folder-chip.active {
+  background:var(--p); border-color:var(--p);
+  color:white; box-shadow:0 3px 12px rgba(108,71,255,0.3);
+}
 
-  /* ─── BOTTOM NAV ─── */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 100%; max-width: 420px;
-    background: white; border-top: 1.5px solid #F5E8D8;
-    display: flex; padding: 10px 0 24px; z-index: 30;
-  }
-  .nav-item {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; gap: 3px; cursor: pointer; transition: transform 0.15s;
-  }
-  .nav-item:active { transform: scale(0.9); }
-  .nav-icon { font-size: 22px; }
-  .nav-label { font-size: 10px; font-weight: 700; color: #C0A88A; }
-  .nav-item.active .nav-label { color: var(--orange); }
-  .nav-dot { width: 5px; height: 5px; background: var(--orange); border-radius: 50%; margin-top: -2px; }
+/* ───── MENU GRID ───── */
+.menu-grid {
+  position:relative; z-index:10;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:11px; margin:10px 22px 0;
+}
+.menu-btn {
+  background:var(--card); border:none;
+  border-radius:20px; padding:18px 16px;
+  text-align:left; cursor:pointer;
+  box-shadow:var(--sh1); position:relative; overflow:hidden;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.menu-btn:active { transform:translateY(3px); box-shadow:none; }
 
-  .bottom-space { height: 100px; }
+/* 각 버튼 상단 컬러 바 */
+.menu-btn::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  border-radius:3px 3px 0 0;
+}
+.menu-btn.quiz::before   { background:linear-gradient(90deg, var(--p), var(--p-mid)); }
+.menu-btn.vocab::before  { background:linear-gradient(90deg, var(--g), #69F0AE); }
+.menu-btn.add::before    { background:linear-gradient(90deg, var(--y), #FFD740); }
+.menu-btn.youtube::before{ background:linear-gradient(90deg, var(--r), #FF8A9A); }
 
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+/* 배경 원형 장식 */
+.menu-btn::after {
+  content:''; position:absolute; bottom:-16px; right:-16px;
+  width:64px; height:64px; border-radius:50%; opacity:0.06;
+}
+.menu-btn.quiz::after   { background:var(--p); }
+.menu-btn.vocab::after  { background:var(--g); }
+.menu-btn.add::after    { background:var(--y); }
+.menu-btn.youtube::after{ background:var(--r); }
+
+.m-icon { font-size:30px; display:block; margin-bottom:10px; }
+.m-name {
+  font-family:'Baloo 2',cursive;
+  font-size:14px; font-weight:800; color:var(--text);
+  display:block; line-height:1.2;
+}
+.m-desc {
+  font-size:10px; color:var(--text-3); font-weight:600;
+  margin-top:3px; display:block;
+}
+.m-badge {
+  position:absolute; top:14px; right:13px;
+  font-size:10px; font-weight:800;
+  padding:3px 8px; border-radius:9px;
+}
+.menu-btn.quiz  .m-badge { background:var(--p-light); color:var(--p); }
+.menu-btn.vocab .m-badge { background:var(--g-light);  color:var(--g-dark); }
+
+/* ───── QUIZ CHIPS ───── */
+.quiz-scroll {
+  position:relative; z-index:10;
+  display:flex; gap:9px; padding:10px 22px 0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.quiz-scroll::-webkit-scrollbar { display:none; }
+.quiz-chip {
+  flex-shrink:0; min-width:78px;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:16px; padding:12px 14px;
+  cursor:pointer; text-align:center;
+  box-shadow:var(--sh1); transition:all 0.18s;
+}
+.quiz-chip.active {
+  background:var(--p); border-color:var(--p);
+  box-shadow:0 6px 20px rgba(108,71,255,0.35);
+  transform:translateY(-2px);
+}
+.c-icon { font-size:20px; display:block; margin-bottom:4px; }
+.c-name {
+  font-size:11px; font-weight:700;
+  color:var(--text-2); line-height:1.3;
+}
+.quiz-chip.active .c-name { color:white; }
+
+/* ───── START BTN ───── */
+.start-area { position:relative; z-index:10; padding:14px 22px 0; }
+.start-btn {
+  width:100%; padding:17px; border:none; border-radius:18px;
+  font-family:'Baloo 2',cursive;
+  font-size:17px; font-weight:800; color:white;
+  background:linear-gradient(135deg, var(--p) 0%, #8B6FFF 100%);
+  box-shadow:0 6px 0 var(--p-dark), 0 8px 24px rgba(108,71,255,0.35);
+  cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  letter-spacing:0.3px;
+}
+.start-btn:active {
+  transform:translateY(4px);
+  box-shadow:0 2px 0 var(--p-dark), 0 4px 12px rgba(108,71,255,0.2);
+}
+
+/* ───── MASCOT ───── */
+.mascot-area {
+  position:fixed; bottom:88px; right:18px; z-index:20;
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}
+}
+.mascot-bubble {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:13px 13px 4px 13px;
+  padding:7px 12px; font-size:12px; font-weight:700;
+  color:var(--p); box-shadow:var(--sh2);
+  margin-bottom:6px; white-space:nowrap;
+}
+.mascot-img { font-size:46px; display:block; text-align:center; }
+
+/* ───── BOTTOM NAV ───── */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:10px 0 28px; z-index:30;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:3px; cursor:pointer; transition:transform 0.15s;
+}
+.nav-item:active { transform:scale(0.88); }
+.nav-icon { font-size:21px; }
+.nav-lbl { font-size:10px; font-weight:700; color:var(--text-3); }
+.nav-item.active .nav-lbl { color:var(--p); }
+.nav-dot { width:5px; height:5px; background:var(--p); border-radius:50%; margin-top:-2px; }
+
+.bottom-space { height:100px; }
+
+/* ───── 애니메이션 ───── */
+@keyframes slideUp {
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.today-card { animation:slideUp 0.5s ease both; }
+.stats-row  { animation:slideUp 0.5s 0.08s ease both; }
+.menu-grid  { animation:slideUp 0.5s 0.16s ease both; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">
-    <span class="bolt">⚡</span>SPEAKY
+    <div class="logo-badge">⚡</div>
+    <span class="logo-name">SPEAKY</span>
   </div>
-  <div class="header-right">
-    <div class="streak-badge">🔥 <span id="streakCount">0</span>일 연속</div>
-    <button class="settings-btn">⚙️</button>
+  <div class="header-actions">
+    <div class="streak-tag">🔥 <span id="streakCount">0</span>일</div>
+    <button class="hdr-btn settings-btn">⚙️</button>
   </div>
 </div>
 
-<div class="subtitle-area">
-  <p>나만의 영어 표현 노트 📖</p>
-</div>
-
-<!-- TODAY EXPRESSION -->
-<div class="today-card">
-  <div class="today-en">불러오는 중...</div>
-  <div class="today-kr"></div>
-  <div class="today-play">🔊</div>
+<!-- TODAY -->
+<div class="today-card" id="todayCard">
+  <div class="today-bg">
+    <div class="today-dot"></div>
+    <div class="today-label">✨ 오늘의 표현</div>
+    <div class="today-en">불러오는 중...</div>
+    <div class="today-kr"></div>
+  </div>
+  <div class="today-footer">
+    <div class="play-btn">
+      <div class="play-circle">🔊</div>
+      음성 듣기
+    </div>
+    <div class="today-hint">탭해서 재생</div>
+  </div>
 </div>
 
 <!-- STATS -->
 <div class="stats-row">
   <div class="stat-card">
-    <div class="stat-num total">–</div>
-    <div class="stat-label">총 문장</div>
+    <div class="stat-val total">–</div>
+    <div class="stat-lbl">총 문장</div>
   </div>
   <div class="stat-card">
-    <div class="stat-num favorites">–</div>
-    <div class="stat-label">즐겨찾기 ⭐</div>
+    <div class="stat-val favorites">–</div>
+    <div class="stat-lbl">즐겨찾기 ⭐</div>
   </div>
-  <div class="stat-card progress">
-    <div class="stat-label">학습 완료</div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill"></div>
-    </div>
-    <div class="progress-pct">– / –</div>
+  <div class="stat-card prog-card">
+    <div class="stat-lbl">학습 완료</div>
+    <div class="prog-track"><div class="prog-fill"></div></div>
+    <div class="prog-label progress-pct">– / –</div>
   </div>
 </div>
 
 <!-- FOLDERS -->
-<div class="section-title">📁 폴더</div>
-<div class="folder-scroll">
-  <!-- JS로 동적 렌더링 -->
+<div class="sec-hdr">
+  <div class="sec-title">📁 폴더</div>
 </div>
+<div class="folder-scroll"></div>
 
-<!-- MAIN MENU -->
-<div class="section-title">🚀 학습 메뉴</div>
+<!-- MENU -->
+<div class="sec-hdr">
+  <div class="sec-title">🚀 학습 메뉴</div>
+</div>
 <div class="menu-grid">
   <button class="menu-btn quiz" onclick="location.href='quiz.html'">
-    <span class="menu-count">4가지</span>
-    <span class="menu-icon">🧩</span>
-    <span class="menu-name">퀴즈</span>
-    <span class="menu-desc">4가지 방식으로 연습</span>
+    <span class="m-badge">4가지</span>
+    <span class="m-icon">🧩</span>
+    <span class="m-name">퀴즈</span>
+    <span class="m-desc">4가지 방식으로 연습</span>
   </button>
   <button class="menu-btn vocab" onclick="location.href='vocab.html'">
-    <span class="menu-count" id="vocabCount">–</span>
-    <span class="menu-icon">📚</span>
-    <span class="menu-name">단어장</span>
-    <span class="menu-desc">단어·구동사 정리</span>
+    <span class="m-badge" id="vocabCount">–</span>
+    <span class="m-icon">📚</span>
+    <span class="m-name">단어장</span>
+    <span class="m-desc">단어·구동사 정리</span>
   </button>
   <button class="menu-btn add" onclick="location.href='add.html'">
-    <span class="menu-icon">✏️</span>
-    <span class="menu-name">문장 추가</span>
-    <span class="menu-desc">내 문장 입력하기</span>
+    <span class="m-icon">✏️</span>
+    <span class="m-name">문장 추가</span>
+    <span class="m-desc">내 문장 입력하기</span>
   </button>
   <button class="menu-btn youtube" onclick="location.href='add.html#youtube'">
-    <span class="menu-icon">▶️</span>
-    <span class="menu-name">유튜브 등록</span>
-    <span class="menu-desc">링크 붙여넣기</span>
+    <span class="m-icon">▶️</span>
+    <span class="m-name">유튜브 등록</span>
+    <span class="m-desc">링크 붙여넣기</span>
   </button>
 </div>
 
 <!-- QUIZ TYPE -->
-<div class="section-title">🎮 퀴즈 방식 선택</div>
+<div class="sec-hdr">
+  <div class="sec-title">🎮 퀴즈 방식</div>
+</div>
 <div class="quiz-scroll">
   <button class="quiz-chip active">
-    <span class="chip-icon">🧱</span>
-    <span class="chip-name">덩어리<br>조립</span>
+    <span class="c-icon">🧱</span>
+    <span class="c-name">덩어리<br>조립</span>
   </button>
   <button class="quiz-chip">
-    <span class="chip-icon">⌨️</span>
-    <span class="chip-name">핵심<br>타이핑</span>
+    <span class="c-icon">⌨️</span>
+    <span class="c-name">핵심<br>타이핑</span>
   </button>
   <button class="quiz-chip">
-    <span class="chip-icon">👂</span>
-    <span class="chip-name">리스닝<br>받아쓰기</span>
+    <span class="c-icon">👂</span>
+    <span class="c-name">리스닝<br>받아쓰기</span>
   </button>
   <button class="quiz-chip">
-    <span class="chip-icon">🔗</span>
-    <span class="chip-name">의미<br>매칭</span>
+    <span class="c-icon">🔗</span>
+    <span class="c-name">의미<br>매칭</span>
   </button>
 </div>
 
-<!-- START -->
 <div class="start-area">
   <button class="start-btn">⚡ 퀴즈 시작하기</button>
 </div>
 
 <div class="bottom-space"></div>
 
-<!-- MASCOT -->
 <div class="mascot-area">
   <div class="mascot-bubble">같이 공부해요! 💪</div>
   <span class="mascot-img">🌟</span>
 </div>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <div class="nav-item active">
     <span class="nav-icon">🏠</span>
-    <span class="nav-label">홈</span>
+    <span class="nav-lbl">홈</span>
     <div class="nav-dot"></div>
   </div>
-  <div class="nav-item">
-    <span class="nav-icon">📖</span>
-    <span class="nav-label">문장</span>
+  <div class="nav-item" onclick="location.href='add.html'">
+    <span class="nav-icon">✏️</span>
+    <span class="nav-lbl">추가</span>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" onclick="location.href='quiz.html'">
     <span class="nav-icon">🎮</span>
-    <span class="nav-label">퀴즈</span>
+    <span class="nav-lbl">퀴즈</span>
   </div>
   <div class="nav-item" onclick="location.href='stats.html'">
     <span class="nav-icon">📊</span>
-    <span class="nav-label">통계</span>
+    <span class="nav-lbl">통계</span>
   </div>
   <div class="nav-item" onclick="location.href='settings.html'">
     <span class="nav-icon">⚙️</span>
-    <span class="nav-label">설정</span>
+    <span class="nav-lbl">설정</span>
   </div>
 </nav>
 
-<!-- ES Module 진입점 -->
+<script type="module">
+import { isActivated } from './js/data/licenseManager.js';
+if (!isActivated()) location.replace('./license.html');
+</script>
+
 <script type="module" src="js/main.js"></script>
 
-<!-- Service Worker 등록 + 알림 초기화 -->
 <script type="module">
 import { initNotifications } from './js/data/notificationManager.js';
-
-// Service Worker 등록
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
-      console.log('[SPEAKY] SW 등록 완료:', reg.scope);
-      // 새 버전 감지 시 사용자에게 알림
       reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker?.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateBanner();
+        const nw = reg.installing;
+        nw?.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            const b = document.createElement('div');
+            b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#6C47FF;color:white;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;';
+            b.innerHTML = '<span>새 버전 ✨</span><button onclick="location.reload()" style="background:white;color:#6C47FF;border:none;border-radius:8px;padding:5px 14px;font-weight:800;cursor:pointer;">업데이트</button>';
+            document.body.prepend(b);
           }
         });
       });
-    })
-    .catch(e => console.warn('[SPEAKY] SW 등록 실패:', e));
+    }).catch(e => console.warn('SW:', e));
 }
-
-// 알림 초기화 (설정에서 켜져 있으면 오늘 예약)
 initNotifications();
-
-// 업데이트 배너
-function showUpdateBanner() {
-  const banner = document.createElement('div');
-  banner.style.cssText = `
-    position:fixed; top:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:420px; z-index:999;
-    background:var(--purple,#7C4DFF); color:white;
-    padding:12px 20px; text-align:center;
-    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-  `;
-  banner.innerHTML = `
-    <span>⚡ 새 버전이 있어요!</span>
-    <button onclick="location.reload()" style="background:white;color:var(--purple,#7C4DFF);border:none;border-radius:8px;padding:5px 12px;font-weight:800;cursor:pointer;font-size:12px;">업데이트</button>
-  `;
-  document.body.prepend(banner);
-}
 </script>
 
 </body>
