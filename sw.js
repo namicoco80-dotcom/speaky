@@ -8,9 +8,9 @@
  *   - 그 외 외부 리소스 → Network First
  */
 
-const CACHE_NAME    = 'speaky-v1';
-const SHELL_CACHE   = 'speaky-shell-v1';
-const DYNAMIC_CACHE = 'speaky-dynamic-v1';
+const CACHE_NAME    = 'speaky-v3';
+const SHELL_CACHE   = 'speaky-shell-v3';
+const DYNAMIC_CACHE = 'speaky-dynamic-v3';
 
 // 앱 셸 — 설치 시 미리 캐시
 const SHELL_ASSETS = [
