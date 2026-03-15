@@ -62,7 +62,7 @@
   .header {
     position: sticky; top: 0; z-index: 50;
     background: var(--bg);
-    padding: 52px 20px 16px;
+    padding: 16px 20px 12px;
     display: flex; align-items: center; gap: 12px;
     border-bottom: 1.5px solid var(--border);
     transition: background 0.3s;
@@ -1076,36 +1076,102 @@ window.openTTSModal    = () => document.getElementById('ttsModal').classList.add
 window.closeModal      = id => document.getElementById(id).classList.remove('open');
 window.closeIfBg       = (e, id) => { if (e.target === document.getElementById(id)) closeModal(id); };
 
-// ── 스펠 체크 (mock) ──
-const mockExpressions = [
-  { en: "I was so frustrated that I couldn't do anything.", error: null },
-  { en: "But the thing is, you're the only one who can forgive me", error: null },
-  { en: "I felt like i was nothing without you.", error: "대소문자 오류: 'i' → 'I'" },
-  { en: "Don't worry,let's check this!", error: "띄어쓰기 오류: ',' 뒤 공백 필요" },
-  { en: "She completly ignored me.", error: "철자 오류: 'completly' → 'completely'" },
-];
+// ── 스펠 체크 (실제 데이터 기반) ──
+
+// 오타 패턴 검사 함수
+function checkSpelling(en) {
+  const errors = [];
+  // 소문자 i 단독 사용
+  if (/\bi\b/.test(en)) errors.push("대소문자 오류: 'i' → 'I'");
+  // 쉼표 뒤 공백 없음
+  if (/,[^ ]/.test(en)) errors.push("띄어쓰기 오류: ',' 뒤 공백 필요");
+  // 문장 끝 마침표 없음 (선택)
+  // 자주 틀리는 단어들
+  const typos = {
+    'completly':'completely','definately':'definitely','seperate':'separate',
+    'occured':'occurred','recieve':'receive','beleive':'believe',
+    'untill':'until','wich':'which','thier':'their','alot':'a lot',
+    'dont':'don't','cant':'can't','wont':'won't','im':'I'm',
+  };
+  Object.entries(typos).forEach(([wrong, right]) => {
+    const re = new RegExp('\\b' + wrong + '\\b', 'i');
+    if (re.test(en)) errors.push(`철자 오류: '${wrong}' → '${right}'`);
+  });
+  return errors.length ? errors[0] : null;
+}
+
+// 실제 저장된 문장 로드
+function loadRealExpressions() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('speaky_raw_expressions') || 'null');
+    const builtin = JSON.parse(localStorage.getItem('speaky_builtin_30') || 'null');
+    const rawList = raw?.data?.expressions?.filter(e => !e.is_deleted) ?? [];
+    const builtinList = builtin?.data?.expressions ?? [];
+    return [...rawList, ...builtinList].map(e => ({
+      id: e.id,
+      en: e.en,
+      error: checkSpelling(e.en),
+      fixed: false,
+    }));
+  } catch { return []; }
+}
+
+let spellData = [];
 
 window.buildSpellList = function() {
+  spellData = loadRealExpressions();
+  const errOnly = spellData.filter(e => e.error);
   const list = document.getElementById('spellList');
   list.innerHTML = '';
-  mockExpressions.forEach((item, i) => {
+
+  if (!spellData.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-size:13px;">저장된 문장이 없어요</div>';
+    return;
+  }
+  if (!errOnly.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-size:13px;font-weight:800;">✅ 모든 문장 이상 없음!</div>';
+    return;
+  }
+
+  errOnly.forEach((item, i) => {
     const div = document.createElement('div');
-    div.className = 'spell-item' + (item.error ? ' has-error' : '');
+    div.className = 'spell-item has-error';
+    div.id = 'spellItem_' + item.id;
     div.innerHTML = `
       <div class="spell-en">${item.en}</div>
-      ${item.error
-        ? `<div class="spell-error">⚠️ ${item.error}</div>
-           <input class="edit-input" id="edit${i}" value="${item.en}" placeholder="수정 후 저장">
-           <button class="fix-btn" onclick="fixItem(${i})">✅ 수정 저장</button>`
-        : `<div class="spell-ok">✅ 이상 없음</div>`
-      }`;
+      <div class="spell-error">⚠️ ${item.error}</div>
+      <input class="edit-input" id="spellEdit_${item.id}" value="${item.en.replace(/"/g,'&quot;')}" placeholder="수정 후 저장">
+      <button class="fix-btn" onclick="fixItem('${item.id}')">✅ 수정 저장</button>`;
     list.appendChild(div);
   });
 };
 
-window.fixItem = function(i) {
-  const val = document.getElementById('edit'+i).value.trim();
-  if (val) { mockExpressions[i].en = val; mockExpressions[i].error = null; buildSpellList(); }
+window.fixItem = function(id) {
+  const input = document.getElementById('spellEdit_' + id);
+  if (!input) return;
+  const newVal = input.value.trim();
+  if (!newVal) return;
+
+  // raw_expressions에서 실제로 수정
+  try {
+    const stored = JSON.parse(localStorage.getItem('speaky_raw_expressions') || 'null');
+    if (stored?.data?.expressions) {
+      const idx = stored.data.expressions.findIndex(e => e.id === id);
+      if (idx >= 0) {
+        stored.data.expressions[idx].en = newVal;
+        stored.data.expressions[idx].memo_edited = new Date().toISOString();
+        localStorage.setItem('speaky_raw_expressions', JSON.stringify(stored));
+      }
+    }
+  } catch(e) { console.warn('수정 실패', e); return; }
+
+  // UI에서 해당 항목 제거 (다시 뜨지 않음)
+  const item = document.getElementById('spellItem_' + id);
+  if (item) {
+    item.style.transition = 'opacity 0.3s';
+    item.style.opacity = '0';
+    setTimeout(() => item.remove(), 300);
+  }
 };
 
 // ── 초기화 ──

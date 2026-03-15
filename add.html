@@ -30,7 +30,7 @@
   }
   .header {
     position:sticky; top:0; z-index:50; background:var(--bg);
-    padding:52px 20px 16px; display:flex; align-items:center; gap:12px;
+    padding:16px 20px 12px; display:flex; align-items:center; gap:12px;
     border-bottom:1.5px solid var(--border);
   }
   .back-btn {
@@ -399,28 +399,70 @@ function analyzeLocally(text) {
 }
 
 function splitChunks(text) {
-  const re = /\b(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without|to|in|on|at|for|with|by|from|of|about)\b/gi;
-  const parts = text.split(re)
-    .map(s=>s.trim())
-    .filter(s=>s.length>1&&!s.match(/^(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without|to|in|on|at|for|with|by|from|of|about)$/i));
+  // 1. 구동사를 토큰으로 치환 (분리 방지)
+  let guarded = text;
+  const pvMap = {};
+  [...PV].forEach((pv, i) => {
+    const re = new RegExp('\\b' + pv.replace(' ', '\\s+') + '\\b', 'gi');
+    if (re.test(guarded)) {
+      const key = `__PV${i}__`;
+      pvMap[key] = pv;
+      guarded = guarded.replace(re, key);
+    }
+  });
 
+  // 2. 접속사·관계사 기준 분리
+  const re = /\b(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without)\b/gi;
+  const parts = guarded.split(re)
+    .map(s => s.trim())
+    .filter(s => s.length > 1 && !s.match(/^(that|which|who|because|but|and|so|if|when|although|while|since|before|after|until|without)$/i));
+
+  // 3. 구동사 복원
+  const restored = parts.map(p => {
+    let r = p;
+    Object.entries(pvMap).forEach(([k,v]) => { r = r.replace(new RegExp(k,'g'), v); });
+    return r.trim();
+  }).filter(Boolean);
+
+  // 4. 2~4단어 단위로 청크 병합
   const chunks = [];
   let buf = '';
-  parts.forEach(p => {
-    if (!buf) { buf=p; return; }
-    if (buf.split(' ').length>=2) { chunks.push(buf); buf=p; }
-    else buf+=' '+p;
+  restored.forEach(p => {
+    if (!buf) { buf = p; return; }
+    if (buf.split(' ').length >= 2) { chunks.push(buf); buf = p; }
+    else buf += ' ' + p;
   });
-  if (buf) chunks.push(buf);
-  return chunks.slice(0,6).map(c=>({ en:c.trim() }));
+  if (buf.trim()) chunks.push(buf.trim());
+
+  // 최소 2개 보장
+  if (chunks.length < 2) {
+    const words = text.trim().split(/\s+/);
+    const mid = Math.ceil(words.length / 2);
+    return [
+      { en: words.slice(0, mid).join(' ') },
+      { en: words.slice(mid).join(' ') },
+    ].filter(c => c.en);
+  }
+
+  return chunks.slice(0, 6).map(c => ({ en: c }));
 }
 
 // ── MyMemory 번역 ──
 async function myMemoryTranslate(text) {
-  const res  = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ko`);
+  // de=ko 파라미터로 한국어 결과만 요청
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ko&de=speaky@noreply.com`;
+  const res  = await fetch(url);
   const data = await res.json();
-  if (data.responseStatus===200) return data.responseData.translatedText;
-  throw new Error(data.responseDetails);
+  if (data.responseStatus === 200) {
+    const tr = data.responseData.translatedText;
+    // 영어가 그대로 반환되면 실패로 처리
+    if (tr && tr.toLowerCase() !== text.toLowerCase()) return tr;
+  }
+  // matches 배열에서 한국어 결과 찾기
+  const matches = data.matches ?? [];
+  const krMatch = matches.find(m => m.translation && /[가-힣]/.test(m.translation));
+  if (krMatch) return krMatch.translation;
+  throw new Error('번역 결과 없음');
 }
 
 // ── 상태 ──
