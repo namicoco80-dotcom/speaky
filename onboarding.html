@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 시작하기</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#6C47FF; --p-dark:#4B2FD4; --p-light:#F0EBFF; --p-mid:#9B7FFF;
+  --g:#00C48C; --g-dark:#009966;
+  --y:#FFB800; --y-dark:#CC8A00;
+  --bg:#F7F5FF; --card:#FFFFFF; --text:#1A1035;
+  --text-2:#6B5FA0; --text-3:#B0A8CC; --border:#EAE5FF;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family:'Nunito',sans-serif; background:var(--bg);
+  color:var(--text); max-width:430px; margin:0 auto;
+  display:flex; flex-direction:column;
+}
+
+/* ── 슬라이드 컨테이너 ── */
+.slides {
+  flex:1; display:flex; overflow:hidden; position:relative;
+}
+.slide {
+  min-width:100%; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 32px; text-align:center;
+  transition:transform 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+/* 슬라이드별 배경 */
+.slide-1 { background:linear-gradient(160deg, #F0EBFF 0%, #E8E0FF 100%); }
+.slide-2 { background:linear-gradient(160deg, #E6FFF7 0%, #D0FFF0 100%); }
+.slide-3 { background:linear-gradient(160deg, #FFF8E0 0%, #FFF0C0 100%); }
+.slide-4 { background:linear-gradient(160deg, #F0EBFF 0%, #E0D8FF 100%); }
+
+/* 일러스트 영역 */
+.illus {
+  font-size:88px; margin-bottom:24px;
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}
+}
+
+.slide-tag {
+  display:inline-block;
+  font-size:11px; font-weight:800; letter-spacing:1px;
+  text-transform:uppercase; padding:4px 14px; border-radius:20px;
+  margin-bottom:16px;
+}
+.slide-1 .slide-tag { background:var(--p-light); color:var(--p); }
+.slide-2 .slide-tag { background:#D0FFF0; color:var(--g-dark); }
+.slide-3 .slide-tag { background:#FFF0C0; color:var(--y-dark); }
+.slide-4 .slide-tag { background:var(--p-light); color:var(--p); }
+
+.slide-title {
+  font-family:'Baloo 2',cursive;
+  font-size:28px; font-weight:800; color:var(--text);
+  line-height:1.3; margin-bottom:14px;
+}
+.slide-desc {
+  font-size:15px; font-weight:600; color:var(--text-2);
+  line-height:1.7; max-width:320px;
+}
+
+/* 기능 카드 (슬라이드 2,3용) */
+.feature-list {
+  display:flex; flex-direction:column; gap:10px;
+  width:100%; margin-top:20px; text-align:left;
+}
+.feature-item {
+  background:rgba(255,255,255,0.7);
+  border-radius:14px; padding:12px 16px;
+  display:flex; align-items:center; gap:12px;
+  backdrop-filter:blur(4px);
+}
+.feature-icon { font-size:24px; flex-shrink:0; }
+.feature-text { font-size:13px; font-weight:700; color:var(--text); line-height:1.4; }
+.feature-sub  { font-size:11px; font-weight:600; color:var(--text-3); margin-top:2px; }
+
+/* 레벨 선택 */
+.level-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; width:100%; margin-top:20px;
+}
+.level-btn {
+  background:rgba(255,255,255,0.8); border:2px solid transparent;
+  border-radius:16px; padding:16px 12px; text-align:center;
+  cursor:pointer; transition:all 0.15s; backdrop-filter:blur(4px);
+}
+.level-btn:active { transform:scale(0.96); }
+.level-btn.selected {
+  background:var(--p); border-color:var(--p-dark);
+  box-shadow:0 4px 16px rgba(108,71,255,0.3);
+}
+.level-btn.selected .level-name { color:white; }
+.level-btn.selected .level-desc { color:rgba(255,255,255,0.8); }
+.level-emoji { font-size:28px; display:block; margin-bottom:6px; }
+.level-name  { font-family:'Baloo 2',cursive; font-size:15px; font-weight:800; color:var(--text); }
+.level-desc  { font-size:10px; font-weight:600; color:var(--text-3); margin-top:2px; line-height:1.3; }
+
+/* ── 하단 컨트롤 ── */
+.bottom {
+  padding:20px 32px 40px;
+  background:transparent;
+}
+
+/* 점 인디케이터 */
+.dots {
+  display:flex; justify-content:center; gap:7px; margin-bottom:20px;
+}
+.dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--border); transition:all 0.3s;
+}
+.dot.active { background:var(--p); width:22px; border-radius:4px; }
+
+/* 버튼 */
+.next-btn {
+  width:100%; padding:17px; border:none; border-radius:18px;
+  font-family:'Baloo 2',cursive;
+  font-size:17px; font-weight:800; color:white;
+  background:linear-gradient(135deg, var(--p), #8B6FFF);
+  box-shadow:0 5px 0 var(--p-dark), 0 8px 20px rgba(108,71,255,0.3);
+  cursor:pointer; transition:all 0.15s;
+}
+.next-btn:active { transform:translateY(4px); box-shadow:0 1px 0 var(--p-dark); }
+
+.skip-btn {
+  display:block; text-align:center; margin-top:12px;
+  font-size:13px; font-weight:700; color:var(--text-3);
+  cursor:pointer; text-decoration:none;
+}
+</style>
+</head>
+<body>
+
+<!-- 슬라이드 -->
+<div class="slides" id="slides">
+
+  <!-- 슬라이드 1: 환영 -->
+  <div class="slide slide-1">
+    <div class="illus">⚡</div>
+    <div class="slide-tag">Welcome</div>
+    <div class="slide-title">SPEAKY에<br>오신 걸 환영해요!</div>
+    <div class="slide-desc">
+      내가 원하는 영어 표현을 직접 저장하고<br>
+      퀴즈로 자동 학습하는 나만의 영어 노트예요.
+    </div>
+  </div>
+
+  <!-- 슬라이드 2: 핵심 기능 -->
+  <div class="slide slide-2">
+    <div class="illus">🧩</div>
+    <div class="slide-tag">핵심 기능</div>
+    <div class="slide-title">이렇게<br>사용해요</div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon">✏️</div>
+        <div>
+          <div class="feature-text">문장 추가</div>
+          <div class="feature-sub">외우고 싶은 영어 표현을 직접 입력해요</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎮</div>
+        <div>
+          <div class="feature-text">4가지 퀴즈</div>
+          <div class="feature-sub">덩어리 조립, 타이핑, 리스닝, 매칭</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📖</div>
+        <div>
+          <div class="feature-text">내 문장 관리</div>
+          <div class="feature-sub">수정, 삭제, 즐겨찾기로 정리해요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이드 3: 레벨 선택 -->
+  <div class="slide slide-3">
+    <div class="illus">🎯</div>
+    <div class="slide-tag">내 수준 선택</div>
+    <div class="slide-title">영어 실력이<br>어느 정도예요?</div>
+    <div class="level-grid" id="levelGrid">
+      <button class="level-btn" data-level="a1" onclick="selectLevel(this)">
+        <span class="level-emoji">🌱</span>
+        <div class="level-name">A1 왕초보</div>
+        <div class="level-desc">알파벳·인사말<br>정도 알아요</div>
+      </button>
+      <button class="level-btn" data-level="a2" onclick="selectLevel(this)">
+        <span class="level-emoji">🌿</span>
+        <div class="level-name">A2 초급</div>
+        <div class="level-desc">간단한 일상<br>표현 알아요</div>
+      </button>
+      <button class="level-btn" data-level="b1" onclick="selectLevel(this)">
+        <span class="level-emoji">🌳</span>
+        <div class="level-name">B1 중급</div>
+        <div class="level-desc">일상 대화<br>가능해요</div>
+      </button>
+      <button class="level-btn" data-level="b2" onclick="selectLevel(this)">
+        <span class="level-emoji">🏔️</span>
+        <div class="level-name">B2 중상급</div>
+        <div class="level-desc">복잡한 주제도<br>이야기해요</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- 슬라이드 4: 시작 -->
+  <div class="slide slide-4">
+    <div class="illus">🚀</div>
+    <div class="slide-tag">준비 완료</div>
+    <div class="slide-title">이제 시작해볼까요?<br>💪</div>
+    <div class="slide-desc">
+      매일 조금씩 꾸준히 하면<br>
+      영어 실력이 쑥쑥 늘어요!<br><br>
+      원어민 30개 표현이 준비되어 있어요.<br>
+      첫 퀴즈를 바로 시작해보세요!
+    </div>
+  </div>
+
+</div>
+
+<!-- 하단 컨트롤 -->
+<div class="bottom">
+  <div class="dots" id="dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <button class="next-btn" id="nextBtn" onclick="nextSlide()">다음 →</button>
+  <a class="skip-btn" onclick="finish()">건너뛰기</a>
+</div>
+
+<script>
+let cur = 0;
+const total = 4;
+let selectedLevel = null;
+
+function updateSlides() {
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach((s, i) => {
+    s.style.transform = `translateX(${(i - cur) * 100}%)`;
+  });
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === cur);
+  });
+  const btn = document.getElementById('nextBtn');
+  if (cur === total - 1) {
+    btn.textContent = '⚡ 시작하기';
+  } else if (cur === 2) {
+    btn.textContent = selectedLevel ? '다음 →' : '레벨을 선택해주세요';
+  } else {
+    btn.textContent = '다음 →';
+  }
+}
+
+window.selectLevel = function(el) {
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedLevel = el.dataset.level;
+  document.getElementById('nextBtn').textContent = '다음 →';
+  localStorage.setItem('speaky_level', selectedLevel);
+};
+
+window.nextSlide = function() {
+  if (cur === 2 && !selectedLevel) {
+    document.getElementById('nextBtn').style.animation = 'shake 0.3s ease';
+    setTimeout(() => document.getElementById('nextBtn').style.animation = '', 400);
+    return;
+  }
+  if (cur === total - 1) { finish(); return; }
+  cur++;
+  updateSlides();
+};
+
+window.finish = function() {
+  localStorage.setItem('speaky_onboarded', 'true');
+  location.href = './index.html';
+};
+
+// 스와이프 지원
+let startX = 0;
+document.getElementById('slides').addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+document.getElementById('slides').addEventListener('touchend', e => {
+  const diff = startX - e.changedTouches[0].clientX;
+  if (diff > 50 && cur < total - 1) { cur++; updateSlides(); }
+  if (diff < -50 && cur > 0) { cur--; updateSlides(); }
+});
+
+// 초기화
+updateSlides();
+</script>
+</body>
+</html>

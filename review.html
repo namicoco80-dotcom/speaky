@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 오늘의 학습</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#6C47FF; --p-dark:#4B2FD4; --p-light:#F0EBFF; --p-mid:#9B7FFF;
+  --g:#00C48C; --g-dark:#009966; --g-light:#E6FFF7;
+  --r:#FF4C6A; --r-dark:#CC2244; --r-light:#FFF0F3;
+  --y:#FFB800; --y-dark:#CC8A00; --y-light:#FFF8E0;
+  --bg:#F7F5FF; --card:#FFFFFF; --text:#1A1035;
+  --text-2:#6B5FA0; --text-3:#B0A8CC; --border:#EAE5FF;
+  --sh:0 2px 12px rgba(108,71,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:'Nunito',sans-serif; background:var(--bg);
+  color:var(--text); min-height:100vh; max-width:430px; margin:0 auto;
+}
+
+.header {
+  padding:16px 20px 12px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+.back-btn {
+  width:36px; height:36px; background:var(--card);
+  border:1.5px solid var(--border); border-radius:11px;
+  font-size:16px; cursor:pointer; text-decoration:none;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh);
+}
+.header-title {
+  font-family:'Baloo 2',cursive; font-size:20px; font-weight:800; color:var(--text);
+}
+
+/* 히어로 */
+.hero {
+  margin:16px 20px 0;
+  background:linear-gradient(135deg, var(--p) 0%, #8B6FFF 100%);
+  border-radius:22px; padding:24px;
+  box-shadow:0 6px 0 var(--p-dark), 0 10px 24px rgba(108,71,255,0.3);
+}
+.hero-date { font-size:11px; font-weight:700; color:rgba(255,255,255,0.65); margin-bottom:8px; }
+.hero-title { font-family:'Baloo 2',cursive; font-size:22px; font-weight:800; color:white; margin-bottom:16px; }
+.hero-stats { display:flex; gap:10px; }
+.hero-stat {
+  flex:1; background:rgba(255,255,255,0.15); border-radius:12px; padding:12px;
+  text-align:center; backdrop-filter:blur(4px);
+}
+.hero-num { font-family:'Baloo 2',cursive; font-size:26px; font-weight:800; color:white; line-height:1; }
+.hero-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.75); margin-top:3px; }
+
+/* 섹션 */
+.section-title {
+  padding:20px 20px 8px;
+  font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:var(--text);
+  display:flex; align-items:center; gap:8px;
+}
+
+/* 문장 카드 */
+.expr-list { padding:0 20px; }
+.expr-card {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:16px; padding:16px;
+  box-shadow:var(--sh); margin-bottom:10px;
+  animation:fadeUp 0.3s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.expr-card.correct { border-left:3px solid var(--g); }
+.expr-card.wrong   { border-left:3px solid var(--r); }
+
+.expr-result {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:800; margin-bottom:8px;
+}
+.expr-result.c { color:var(--g-dark); }
+.expr-result.w { color:var(--r-dark); }
+.expr-en { font-size:15px; font-weight:800; color:var(--text); line-height:1.4; margin-bottom:4px; }
+.expr-kr { font-size:12px; color:var(--text-2); font-weight:600; margin-bottom:6px; }
+.expr-memo { font-size:11px; color:var(--text-3); font-style:italic; }
+
+.tts-btn {
+  margin-top:8px; background:var(--p-light); border:none; border-radius:8px;
+  padding:5px 12px; font-size:11px; font-weight:700; color:var(--p);
+  cursor:pointer;
+}
+
+/* 빈 상태 */
+.empty {
+  text-align:center; padding:60px 20px;
+  color:var(--text-3);
+}
+.empty-icon { font-size:48px; margin-bottom:14px; }
+.empty-text { font-size:14px; font-weight:700; line-height:1.6; }
+
+/* 하단 버튼 */
+.bottom-btns { padding:16px 20px 100px; display:flex; flex-direction:column; gap:10px; }
+.btn-primary {
+  width:100%; padding:16px; border:none; border-radius:16px;
+  font-family:'Baloo 2',cursive; font-size:16px; font-weight:800; color:white;
+  background:linear-gradient(135deg, var(--p), #8B6FFF);
+  box-shadow:0 5px 0 var(--p-dark); cursor:pointer;
+}
+.btn-primary:active { transform:translateY(3px); }
+.btn-secondary {
+  width:100%; padding:14px; border:1.5px solid var(--border); border-radius:16px;
+  font-family:'Baloo 2',cursive; font-size:15px; font-weight:800; color:var(--text-2);
+  background:var(--card); cursor:pointer;
+}
+
+/* 하단 네비 */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  background:rgba(255,255,255,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:10px 0 28px; z-index:30;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:3px;
+  text-decoration:none; color:inherit; cursor:pointer;
+}
+.nav-icon { font-size:21px; }
+.nav-lbl  { font-size:10px; font-weight:700; color:var(--text-3); }
+.nav-dot  { width:5px; height:5px; background:var(--p); border-radius:50%; margin-top:-2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-btn" href="./index.html">←</a>
+  <div class="header-title">📋 오늘의 학습 요약</div>
+</div>
+
+<div id="content"></div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="./index.html"><span class="nav-icon">🏠</span><span class="nav-lbl">홈</span></a>
+  <a class="nav-item" href="./sentences.html"><span class="nav-icon">📖</span><span class="nav-lbl">문장</span></a>
+  <a class="nav-item" href="./quiz.html"><span class="nav-icon">🎮</span><span class="nav-lbl">퀴즈</span></a>
+  <a class="nav-item" href="./stats.html"><span class="nav-icon">📊</span><span class="nav-lbl">통계</span></a>
+  <a class="nav-item" href="./settings.html"><span class="nav-icon">⚙️</span><span class="nav-lbl">설정</span></a>
+</nav>
+
+<script type="module">
+import { KEYS, safeGet } from './js/core/storage.js';
+import { getExpressions } from './js/data/expressionManager.js';
+import { getSettings } from './js/data/settingsManager.js';
+
+function playTTS(text) {
+  if (!('speechSynthesis' in window)) return;
+  const s = getSettings();
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = s.tts_accent === 'uk' ? 'en-GB' : 'en-US';
+  u.rate = s.tts_speed ?? 1.0;
+  speechSynthesis.speak(u);
+}
+window.playTTS = playTTS;
+
+function render() {
+  const progress = safeGet(KEYS.PROGRESS, null)?.data ?? {};
+  const history  = progress.quiz_history ?? [];
+
+  // 오늘 날짜 기준 필터
+  const today = new Date().toDateString();
+  const todayHistory = history.filter(h => new Date(h.date).toDateString() === today);
+
+  const content = document.getElementById('content');
+  const allExprs = getExpressions({ includeBuiltin: true });
+  const exprMap  = Object.fromEntries(allExprs.map(e => [e.id, e]));
+
+  const todayDate = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+  const correct = todayHistory.filter(h => h.correct).length;
+  const wrong   = todayHistory.filter(h => !h.correct).length;
+  const total   = todayHistory.length;
+
+  // 퀴즈 기록 없으면 learned_ids 기준으로 최근 학습 표시
+  const learnedIds = progress.learned_ids ?? [];
+  const recentExprs = allExprs
+    .filter(e => learnedIds.includes(e.id))
+    .slice(-10)
+    .reverse();
+
+  let html = `
+    <div class="hero">
+      <div class="hero-date">${todayDate}</div>
+      <div class="hero-title">오늘도 수고했어요! 🎉</div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-num">${total || learnedIds.length}</div>
+          <div class="hero-lbl">학습 문장</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-num">${correct}</div>
+          <div class="hero-lbl">정답 ✅</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-num">${wrong}</div>
+          <div class="hero-lbl">오답 ❌</div>
+        </div>
+      </div>
+    </div>`;
+
+  if (todayHistory.length > 0) {
+    // 오늘 퀴즈 기록 있음
+    const wrongExprs = todayHistory.filter(h => !h.correct).map(h => exprMap[h.expressionId]).filter(Boolean);
+    const correctExprs = todayHistory.filter(h => h.correct).map(h => exprMap[h.expressionId]).filter(Boolean);
+
+    if (wrongExprs.length > 0) {
+      html += `<div class="section-title">❌ 다시 봐야 할 표현 (${wrongExprs.length}개)</div><div class="expr-list">`;
+      wrongExprs.slice(0, 5).forEach((e, i) => {
+        html += `
+          <div class="expr-card wrong" style="animation-delay:${i*0.05}s">
+            <div class="expr-result w">❌ 틀렸어요</div>
+            <div class="expr-en">${e.en}</div>
+            ${e.kr ? `<div class="expr-kr">${e.kr}</div>` : ''}
+            ${e.memo ? `<div class="expr-memo">💡 ${e.memo}</div>` : ''}
+            <button class="tts-btn" onclick="playTTS('${e.en.replace(/'/g,"\\'")}')">🔊 듣기</button>
+          </div>`;
+      });
+      html += '</div>';
+    }
+
+    if (correctExprs.length > 0) {
+      html += `<div class="section-title">✅ 잘 외운 표현 (${correctExprs.length}개)</div><div class="expr-list">`;
+      correctExprs.slice(0, 5).forEach((e, i) => {
+        html += `
+          <div class="expr-card correct" style="animation-delay:${i*0.05}s">
+            <div class="expr-result c">✅ 정답</div>
+            <div class="expr-en">${e.en}</div>
+            ${e.kr ? `<div class="expr-kr">${e.kr}</div>` : ''}
+            <button class="tts-btn" onclick="playTTS('${e.en.replace(/'/g,"\\'")}')">🔊 듣기</button>
+          </div>`;
+      });
+      html += '</div>';
+    }
+  } else if (recentExprs.length > 0) {
+    // 퀴즈 기록 없으면 학습한 표현 표시
+    html += `<div class="section-title">📚 학습한 표현 (${recentExprs.length}개)</div><div class="expr-list">`;
+    recentExprs.forEach((e, i) => {
+      html += `
+        <div class="expr-card correct" style="animation-delay:${i*0.05}s">
+          <div class="expr-en">${e.en}</div>
+          ${e.kr ? `<div class="expr-kr">${e.kr}</div>` : ''}
+          ${e.memo ? `<div class="expr-memo">💡 ${e.memo}</div>` : ''}
+          <button class="tts-btn" onclick="playTTS('${e.en.replace(/'/g,"\\'")}')">🔊 듣기</button>
+        </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += `
+      <div class="empty">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">아직 학습 기록이 없어요.<br>퀴즈를 시작해보세요!</div>
+      </div>`;
+  }
+
+  html += `
+    <div class="bottom-btns">
+      <button class="btn-primary" onclick="location.href='./quiz.html'">⚡ 퀴즈 계속하기</button>
+      <button class="btn-secondary" onclick="location.href='./index.html'">🏠 홈으로</button>
+    </div>`;
+
+  content.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
