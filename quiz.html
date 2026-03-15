@@ -121,30 +121,49 @@
   .tts-btn:active { transform:scale(0.95); }
 
   /* ── 1. 덩어리 조립 ── */
+  /* ── 듀오링고 스타일 덩어리 조립 ── */
+  /* 상단 배치 영역: 언더라인 슬롯 */
   .chunk-answer-area {
-    min-height:70px; border:2.5px dashed #B39DDB;
-    border-radius:16px; padding:14px; margin-bottom:14px;
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-    background:#FAFAFE; transition:border-color 0.2s;
+    min-height:56px;
+    border:none; border-bottom:2px solid #E0E0E0;
+    padding:8px 4px 12px;
+    margin-bottom:28px;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end;
+    background:transparent;
   }
-  .chunk-answer-area.drag-over { border-color:var(--purple); background:#F8F5FF; }
+  /* 배치된 타일이 있을 때 언더라인 강조 */
+  .chunk-answer-area:not(:empty) { border-bottom-color:#7C4DFF; }
+
+  /* 하단 타일 풀: 중앙 정렬 그리드 */
   .chunk-pool {
-    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px;
+    display:flex; flex-wrap:wrap; gap:10px;
+    justify-content:center; padding:8px 0;
   }
-  /* 미배치 타일: 밝은 보라 배경 + 진한 글자 → 가독성 UP */
+
+  /* 타일 기본: 듀오링고 스타일 (흰 배경 + 테두리 + 그림자) */
   .chunk-tile {
-    background:#F0EEFF; border:2.5px solid #B39DDB;
-    border-radius:14px; padding:10px 16px;
-    font-size:15px; font-weight:800; color:#311B92;
+    background:white;
+    border:2px solid #E0E0E0;
+    border-bottom:4px solid #C0C0C0;
+    border-radius:12px;
+    padding:10px 16px;
+    font-size:15px; font-weight:700; color:#333;
     cursor:pointer; user-select:none;
-    transition:transform 0.1s, box-shadow 0.1s;
-    box-shadow:0 4px 0 #9575CD;
+    transition:transform 0.1s, border-color 0.15s;
   }
-  .chunk-tile:active { transform:translateY(3px); box-shadow:0 1px 0 #9575CD; }
-  /* 배치된 타일: 오렌지로 변경 (명확한 구분) */
+  .chunk-tile:active { transform:translateY(3px); border-bottom-width:1px; }
+  .chunk-tile:hover  { border-color:#7C4DFF; color:#7C4DFF; }
+
+  /* 배치된 타일: 보라색 테두리 + 연한 배경 */
   .chunk-tile.placed {
-    background:var(--orange); border-color:var(--orange-dark);
-    color:white; box-shadow:0 4px 0 var(--orange-dark);
+    background:#F0EEFF;
+    border:2px solid #7C4DFF;
+    border-bottom:4px solid #5533CC;
+    color:#3D1F99;
+  }
+  /* 배치 영역 안의 타일은 아래 그림자 제거 */
+  .chunk-answer-area .chunk-tile.placed {
+    border-bottom-width:2px;
   }
   .chunk-tile.correct-anim { animation:tileCorrect 0.4s ease; }
   .chunk-tile.wrong-anim   { animation:tileWrong 0.3s ease; }
@@ -497,24 +516,30 @@ window.placeChunk = function(tileIdx, text, answerIdx) {
   const answerArea = document.getElementById('answerArea');
 
   if (tile.classList.contains('placed')) {
-    // 이미 배치됨 → 되돌리기
+    // 배치 취소 → 원래 풀로 복귀
     tile.classList.remove('placed');
     placedChunks = placedChunks.filter(c => c.tileIdx !== tileIdx);
-    if (!answerArea.querySelector('.placeholder')) {
-      if (!placedChunks.length) answerArea.innerHTML = '<span class="placeholder" style="color:var(--text-muted);font-size:12px;font-weight:700;">여기에 순서대로 배치하세요</span>';
-    }
+    // 배치 영역에서 해당 타일 제거
+    const inArea = answerArea.querySelector(`[data-tile-idx="${tileIdx}"]`);
+    inArea?.remove();
   } else {
+    // 풀에서 배치 영역으로 이동
     tile.classList.add('placed');
     placedChunks.push({ tileIdx, text, answerIdx });
-    // placeholder 제거
-    answerArea.querySelector('.placeholder')?.remove();
-    // 배치된 청크 표시
     const span = document.createElement('div');
     span.className = 'chunk-tile placed';
     span.textContent = text;
     span.dataset.tileIdx = tileIdx;
     span.onclick = () => placeChunk(tileIdx, text, answerIdx);
     answerArea.appendChild(span);
+  }
+
+  // 정답 확인 버튼: 모든 타일 배치됐으면 활성화
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn) {
+    const allPlaced = placedChunks.length === currentQ.shuffled.length;
+    submitBtn.style.background = allPlaced ? 'var(--green)' : '#C8C8C8';
+    submitBtn.style.boxShadow  = allPlaced ? '0 4px 0 var(--green-dark)' : '0 4px 0 #A0A0A0';
   }
 };
 
