@@ -1,4 +1,4 @@
-const CACHE = 'speaky-v6';
+const CACHE = 'speaky-assets-v7';
 
 self.addEventListener('install', () => self.skipWaiting());
 
