@@ -558,22 +558,23 @@ if (!localStorage.getItem('speaky_onboarded')) {
 
 <script type="module">
 import { initNotifications } from './js/data/notificationManager.js';
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(reg => {
-      reg.addEventListener('updatefound', () => {
-        const nw = reg.installing;
-        nw?.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            const b = document.createElement('div');
-            b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#6C47FF;color:white;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;';
-            b.innerHTML = '<span>새 버전 ✨</span><button onclick="location.reload()" style="background:white;color:#6C47FF;border:none;border-radius:8px;padding:5px 14px;font-weight:800;cursor:pointer;">업데이트</button>';
-            document.body.prepend(b);
-          }
-        });
-      });
-    }).catch(e => console.warn('SW:', e));
-}
+// SW 개발 중 비활성화 - 출시 전 주석 해제
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.register('./sw.js')
+//     .then(reg => {
+//       reg.addEventListener('updatefound', () => {
+//         const nw = reg.installing;
+//         nw?.addEventListener('statechange', () => {
+//           if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+//             const b = document.createElement('div');
+//             b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#6C47FF;color:white;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;';
+//             b.innerHTML = '<span>새 버전 ✨</span><button onclick="location.reload()" style="background:white;color:#6C47FF;border:none;border-radius:8px;padding:5px 14px;font-weight:800;cursor:pointer;">업데이트</button>';
+//             document.body.prepend(b);
+//           }
+//         });
+//       });
+//     }).catch(e => console.warn('SW:', e));
+// }
 initNotifications();
 </script>
 
