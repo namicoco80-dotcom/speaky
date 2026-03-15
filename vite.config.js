@@ -1,38 +1,31 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, existsSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
 
-// sw.js / manifest.json 은 Vite 번들 대상이 아니므로 빌드 후 수동 복사
 const copyStaticPlugin = {
   name: 'copy-static',
   closeBundle() {
-    const files = [
-      'sw.js',
-      'manifest.json',
-    ];
-    files.forEach(f => {
-      if (existsSync(f)) {
-        copyFileSync(f, `dist/${f}`);
-        console.log(`[copy-static] ${f} → dist/${f}`);
-      }
+    // data 폴더 복사
+    mkdirSync('dist/data', { recursive: true });
+    copyFileSync('data/builtin_30.json', 'dist/data/builtin_30.json');
+    // sw.js, manifest.json 복사
+    ['sw.js', 'manifest.json'].forEach(f => {
+      if (existsSync(f)) copyFileSync(f, `dist/${f}`);
     });
+    console.log('[copy-static] 완료');
   },
 };
 
 export default defineConfig({
-  // ✅ file:// 로컬 실행을 위해 상대 경로 사용
   base: './',
-
   plugins: [copyStaticPlugin],
-
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-
-    // 멀티페이지 앱 (HTML 6개 모두 진입점)
     rollupOptions: {
       input: {
         main     : resolve(__dirname, 'index.html'),
+        license  : resolve(__dirname, 'license.html'),
         add      : resolve(__dirname, 'add.html'),
         vocab    : resolve(__dirname, 'vocab.html'),
         stats    : resolve(__dirname, 'stats.html'),
@@ -45,17 +38,7 @@ export default defineConfig({
         assetFileNames : 'assets/[name]-[hash][extname]',
       },
     },
-
-    // 소스맵 끄기 (코드 보호)
     sourcemap: false,
-
-    // 압축
     minify: 'esbuild',
-  },
-
-  // 개발 서버 (npm run dev)
-  server: {
-    port: 3000,
-    open: true,
   },
 });
