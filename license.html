@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ SPEAKY — 시작하기</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange:#FF8C00; --orange-light:#FFB347; --orange-dark:#E07800;
+    --purple:#7C4DFF; --green:#00C07A; --green-dark:#009960;
+    --red:#FF4757;
+    --bg:#FFF8F0; --card:#FFFFFF; --text:#2D1B00; --text-muted:#A0876A;
+    --border:#F0E0CC;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; max-width:420px; margin:0 auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 24px;
+  }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,179,71,0.2) 0%, transparent 50%),
+      radial-gradient(circle at 80% 85%, rgba(124,77,255,0.12) 0%, transparent 50%);
+  }
+
+  .wrap { position:relative; z-index:1; width:100%; }
+
+  /* 로고 */
+  .logo-area { text-align:center; margin-bottom:36px; }
+  .logo-icon {
+    font-size:72px; display:block; margin-bottom:10px;
+    filter:drop-shadow(0 6px 16px rgba(255,140,0,0.4));
+    animation:float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}
+  }
+  .logo-name {
+    font-family:'Baloo 2',cursive; font-size:36px; font-weight:800;
+    color:var(--orange); text-shadow:0 4px 0 var(--orange-dark);
+    display:block;
+  }
+  .logo-sub {
+    font-size:14px; font-weight:700; color:var(--text-muted); margin-top:4px;
+  }
+
+  /* 카드 */
+  .card {
+    background:var(--card); border-radius:24px; padding:28px 24px;
+    box-shadow:0 8px 32px rgba(45,27,0,0.10); margin-bottom:16px;
+  }
+  .card-title {
+    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800;
+    color:var(--text); margin-bottom:6px;
+  }
+  .card-desc {
+    font-size:13px; font-weight:600; color:var(--text-muted);
+    line-height:1.6; margin-bottom:20px;
+  }
+
+  /* 키 입력 */
+  .key-input {
+    width:100%; font-family:'Baloo 2',cursive; font-size:18px; font-weight:800;
+    color:var(--text); background:#FFFBF5; border:2.5px solid var(--border);
+    border-radius:14px; padding:14px 16px; outline:none;
+    text-align:center; letter-spacing:2px; text-transform:uppercase;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .key-input:focus { border-color:var(--orange); box-shadow:0 0 0 4px rgba(255,140,0,0.12); }
+  .key-input.error { border-color:var(--red); box-shadow:0 0 0 4px rgba(255,71,87,0.10); animation:shake 0.3s ease; }
+  .key-input.success { border-color:var(--green); box-shadow:0 0 0 4px rgba(0,192,122,0.12); }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+  }
+
+  .key-format {
+    font-size:11px; font-weight:700; color:var(--text-muted);
+    text-align:center; margin-top:6px;
+  }
+
+  /* 에러 메시지 */
+  .error-msg {
+    font-size:12px; font-weight:800; color:var(--red);
+    text-align:center; margin-top:8px; min-height:18px;
+    line-height:1.5;
+  }
+
+  /* 활성화 버튼 */
+  .activate-btn {
+    width:100%; padding:18px; border:none; border-radius:18px; margin-top:16px;
+    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
+    background:var(--orange); box-shadow:0 6px 0 var(--orange-dark), 0 8px 20px rgba(255,140,0,0.3);
+    cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .activate-btn:active { transform:translateY(4px); box-shadow:0 2px 0 var(--orange-dark); }
+  .activate-btn:disabled { background:#C8C8C8; box-shadow:0 4px 0 #A0A0A0; cursor:not-allowed; }
+  .activate-btn.loading { background:#FFC060; pointer-events:none; }
+
+  /* 성공 화면 */
+  .success-screen {
+    display:none; text-align:center;
+  }
+  .success-screen.show { display:block; }
+  .success-icon { font-size:64px; display:block; margin-bottom:16px; animation:pop 0.4s ease; }
+  @keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.1)} 100%{transform:scale(1)} }
+  .success-title {
+    font-family:'Baloo 2',cursive; font-size:26px; font-weight:800;
+    color:var(--green); margin-bottom:6px;
+  }
+  .success-desc { font-size:14px; font-weight:700; color:var(--text-muted); margin-bottom:28px; }
+  .start-btn {
+    width:100%; padding:18px; border:none; border-radius:18px;
+    font-family:'Baloo 2',cursive; font-size:18px; font-weight:800; color:white;
+    background:var(--green); box-shadow:0 6px 0 var(--green-dark);
+    cursor:pointer; transition:transform 0.15s;
+  }
+  .start-btn:active { transform:translateY(4px); }
+
+  /* 도움말 */
+  .help-text {
+    text-align:center; font-size:12px; font-weight:700;
+    color:var(--text-muted); line-height:1.8; margin-top:8px;
+  }
+</style>
+  <script type="module" crossorigin src="./assets/license-D2W8khhZ.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 로고 -->
+  <div class="logo-area">
+    <span class="logo-icon">⚡</span>
+    <span class="logo-name">SPEAKY</span>
+    <span class="logo-sub">나만의 영어 표현 노트</span>
+  </div>
+
+  <!-- 키 입력 카드 -->
+  <div class="card" id="inputCard">
+    <div class="card-title">🔑 라이선스 키 입력</div>
+    <div class="card-desc">
+      구매 후 받은 라이선스 키를 입력하면<br>바로 시작할 수 있어요!
+    </div>
+
+    <input class="key-input" id="keyInput"
+      placeholder="SPEAKY-XXXX-XXXX-XXXX"
+      maxlength="22"
+      oninput="formatKey(this)"
+      onkeydown="if(event.key==='Enter') doActivate()">
+    <div class="key-format">형식: SPEAKY-A1B2-C3D4-E5F6</div>
+    <div class="error-msg" id="errorMsg"></div>
+
+    <button class="activate-btn" id="activateBtn" onclick="doActivate()">
+      ⚡ 시작하기
+    </button>
+  </div>
+
+  <!-- 성공 화면 -->
+  <div class="success-screen" id="successScreen">
+    <span class="success-icon">🎉</span>
+    <div class="success-title">활성화 완료!</div>
+    <div class="success-desc">SPEAKY를 시작해볼까요? 💪</div>
+    <button class="start-btn" onclick="goToApp()">⚡ 앱 시작하기</button>
+  </div>
+
+  <div class="help-text">
+    키를 분실했다면 구매처로 문의해주세요.<br>
+    한 번 입력하면 다시 입력하지 않아도 돼요.
+  </div>
+
+</div>
+
+</body>
+</html>
