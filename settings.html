@@ -506,7 +506,7 @@
     box-shadow: 0 4px 0 var(--red-dark);
   }
 </style>
-  <script type="module" crossorigin src="./assets/settings-CXb88plb.js"></script>
+  <script type="module" crossorigin src="./assets/settings-Cf8vnBkE.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
   <link rel="modulepreload" crossorigin href="./assets/settingsManager-B44Cy7pt.js">
@@ -561,6 +561,18 @@
       <div class="section-name">학습 환경 설정</div>
     </div>
     <div class="card">
+
+      <!-- 무음 모드 -->
+      <div class="row" onclick="toggleSfx()">
+        <span class="row-icon">🔇</span>
+        <div class="row-body">
+          <div class="row-label">효과음</div>
+          <div class="row-desc" id="sfxDesc">켜짐</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle on" id="sfxToggle"></button>
+        </div>
+      </div>
 
       <!-- 폰트 사이즈 -->
       <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:10px;">
