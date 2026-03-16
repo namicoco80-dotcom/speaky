@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
   theme          : 'light',               // 'light' | 'dark'
   tts_engine     : 'browser',             // 'browser' | 'edge' | 'openai' | 'elevenlabs'
   tts_accent     : 'us',                  // 'us' | 'uk'
-  tts_speed      : 1.0,                   // 0.5 ~ 2.0
+  tts_speed      : 0.85,                  // 0.5 ~ 2.0 (기본값 낮춤 - A1 유저 배려)
   sfx_volume     : 0.7,                   // 0 ~ 1
   chunk_size     : 2,                     // 2 | 3 | 4
   quiz_formats   : {
