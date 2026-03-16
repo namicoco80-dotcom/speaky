@@ -146,7 +146,8 @@
     border:2px solid #E0E0E0;
     border-bottom:4px solid #C0C0C0;
     border-radius:12px;
-    padding:10px 16px;
+    padding:12px 18px;
+    min-height:44px;
     font-size:15px; font-weight:700; color:#333;
     cursor:pointer; user-select:none;
     transition:transform 0.1s, border-color 0.15s;
@@ -257,7 +258,7 @@
   /* ── 다음 버튼 ── */
   .next-btn-area {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:420px; padding:14px 20px 90px;
+    width:100%; max-width:420px; padding:14px 20px calc(90px + env(safe-area-inset-bottom, 0px));
     background:linear-gradient(transparent, var(--bg) 40%); z-index:50;
     display:none;
   }
@@ -274,7 +275,7 @@
   /* ── 제출 버튼 ── */
   .submit-area {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:420px; padding:14px 20px 90px;
+    width:100%; max-width:420px; padding:14px 20px calc(90px + env(safe-area-inset-bottom, 0px));
     background:linear-gradient(transparent, var(--bg) 40%); z-index:50;
   }
   .submit-btn {
@@ -372,7 +373,7 @@
   document.documentElement.style.fontSize = map[size] || '15px';
 })();
 </script>
-  <script type="module" crossorigin src="./assets/quiz-DAXnXjbM.js"></script>
+  <script type="module" crossorigin src="./assets/quiz-Dtc0X2Bf.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="./assets/storage-D5mgx_HQ.js">
   <link rel="modulepreload" crossorigin href="./assets/expressionManager-BKBnNKJn.js">
