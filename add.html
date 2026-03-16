@@ -243,11 +243,20 @@
 .nav-item.active .nav-lbl { color:#6C47FF; }
 .nav-dot { width:5px; height:5px; background:#6C47FF; border-radius:50%; margin-top:-2px; }
 </style>
+
+<script>
+// 폰트 사이즈 설정 적용 (전역)
+(function() {
+  const size = localStorage.getItem('speaky_font_size') || 'medium';
+  const map = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.fontSize = map[size] || '15px';
+})();
+</script>
 </head>
 <body>
 
 <div class="header">
-  <button class="back-btn" onclick="history.back()">←</button>
+  <button class="back-btn" onclick="history.length>1?history.back():location.href='./index.html'">←</button>
   <div class="header-title">✏️ 문장 추가</div>
 </div>
 

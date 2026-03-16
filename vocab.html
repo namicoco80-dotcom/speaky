@@ -229,7 +229,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <button class="back-btn" onclick="history.back()">←</button>
+  <button class="back-btn" onclick="history.length>1?history.back():location.href='./index.html'">←</button>
   <div class="header-title">📚 단어장</div>
   <div class="total-badge" id="totalBadge">0개</div>
 </div>

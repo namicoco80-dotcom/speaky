@@ -1004,7 +1004,7 @@ window.retryQuiz = function() {
 };
 
 window.goBack = function() {
-  const active = document.querySelector('.screen.active').id;
+  const active = document.querySelector('.screen.active')?.id;
   if (active === 'screenSelect' || active === 'screenResult') {
     location.href = 'index.html';
   } else {

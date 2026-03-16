@@ -553,6 +553,10 @@ body::before {
 if (!localStorage.getItem('speaky_onboarded')) {
   location.replace('./onboarding.html');
 }
+// 레벨에 따라 오늘의 표현 카드 색상 힌트
+const _level = localStorage.getItem('speaky_level') || 'a2';
+const _levelColors = { a1:'#00C48C', a2:'#6C47FF', b1:'#FF8C00', b2:'#FF4C6A' };
+document.documentElement.style.setProperty('--level-color', _levelColors[_level] || '#6C47FF');
 </script>
 <script type="module" src="js/main.js"></script>
 
