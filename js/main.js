@@ -123,13 +123,33 @@ function createChip(text, isActive, onClick) {
 // ─── TTS ────────────────────────────────────────────────────────────────────
 export function playTTS(text) {
   if (!('speechSynthesis' in window)) return;
-  const s = getSettings();
+  const s    = getSettings(); // 매번 최신 설정
+  const lang = s.tts_accent === 'uk' ? 'en-GB' : 'en-US';
+  const rate = Number(s.tts_speed) || 1.0;
+
   speechSynthesis.cancel();
-  const u  = new SpeechSynthesisUtterance(text);
-  u.lang   = s.tts_accent === 'uk' ? 'en-GB' : 'en-US';
-  u.rate   = s.tts_speed ?? 1.0;
-  u.volume = 1.0;
-  speechSynthesis.speak(u);
+
+  const doSpeak = () => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang   = lang;
+    u.rate   = rate;
+    u.volume = 1.0;
+    // 언어에 맞는 음성 선택
+    const voices = speechSynthesis.getVoices();
+    const match  = voices.find(v => v.lang === lang)
+                ?? voices.find(v => v.lang.startsWith(lang.split('-')[0]))
+                ?? null;
+    if (match) u.voice = match;
+    speechSynthesis.speak(u);
+  };
+
+  const voices = speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    doSpeak();
+  } else {
+    speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+    setTimeout(() => doSpeak(), 500);
+  }
 }
 
 // ─── 앱 초기화 ───────────────────────────────────────────────────────────────
