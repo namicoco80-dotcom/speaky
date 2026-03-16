@@ -663,11 +663,20 @@ function saveYt(){
   if(!rows.length){ showToast('⚠️ 문장을 1개 이상 입력해주세요'); return; }
   let cnt=0;
   rows.forEach(r=>{
-    const item=addExpression({en:r.text.trim(),folder_id:folder,source:'youtube',source_url:url});
-    if(item) cnt++;
+    const en = r.text.trim();
+    const item = addExpression({en, folder_id:folder, source:'youtube', source_url:url});
+    if(!item) return;
+    cnt++;
+    // 유튜브 문장도 vocab 분석 실행
+    try {
+      const ana = analyzeLocally(en);
+      saveProcessed(item.id, { kr:'', chunks: ana.chunks, vocab: ana.vocab });
+    } catch(e) {
+      saveProcessed(item.id, { kr:'', chunks:[], vocab:[] });
+    }
   });
   showToast(`✅ ${cnt}개 저장 완료!`);
-  setTimeout(()=>history.back(),1200);
+  setTimeout(()=>history.length>1?history.back():location.href='./index.html', 1200);
 }
 
 function saveProcessed(id,{kr,chunks,vocab}){

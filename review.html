@@ -179,7 +179,7 @@ function render() {
 
   // 오늘 날짜 기준 필터
   const today = new Date().toDateString();
-  const todayHistory = history.filter(h => new Date(h.ts ?? h.date ?? 0).toDateString() === today);
+  const todayHistory = history.filter(h => { const d = h.ts || h.date || h.created_at; return d && new Date(d).toDateString() === today; });
 
   const content = document.getElementById('content');
   const allExprs = getExpressions({ includeBuiltin: true });

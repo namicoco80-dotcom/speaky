@@ -146,7 +146,8 @@
     border:2px solid #E0E0E0;
     border-bottom:4px solid #C0C0C0;
     border-radius:12px;
-    padding:10px 16px;
+    padding:12px 18px;
+    min-height:44px;
     font-size:15px; font-weight:700; color:#333;
     cursor:pointer; user-select:none;
     transition:transform 0.1s, border-color 0.15s;
@@ -257,7 +258,7 @@
   /* ── 다음 버튼 ── */
   .next-btn-area {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:420px; padding:14px 20px 90px;
+    width:100%; max-width:420px; padding:14px 20px calc(90px + env(safe-area-inset-bottom, 0px));
     background:linear-gradient(transparent, var(--bg) 40%); z-index:50;
     display:none;
   }
@@ -274,7 +275,7 @@
   /* ── 제출 버튼 ── */
   .submit-area {
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:420px; padding:14px 20px 90px;
+    width:100%; max-width:420px; padding:14px 20px calc(90px + env(safe-area-inset-bottom, 0px));
     background:linear-gradient(transparent, var(--bg) 40%); z-index:50;
   }
   .submit-btn {
@@ -939,6 +940,8 @@ function showFeedback({ correct, feedback }) {
 function playSound(correct) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // 사파리: 사용자 제스처 후 resume 필요
+    if (ctx.state === 'suspended') ctx.resume();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
@@ -969,9 +972,16 @@ window.nextQuestion = function() {
   qIdx++;
   if (qIdx >= questions.length) {
     showResult();
+    sessionStorage.removeItem('speaky_quiz_state');
     return;
   }
   placedChunks = [];
+  // 진행 상태 저장 (백그라운드 복귀 시 유지)
+  try {
+    sessionStorage.setItem('speaky_quiz_state', JSON.stringify({
+      type: currentType, qIdx, total: questions.length
+    }));
+  } catch(e) {}
   renderQuestion();
 };
 
