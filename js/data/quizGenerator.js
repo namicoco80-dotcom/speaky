@@ -217,7 +217,10 @@ export function generateMeaningMatch(expressions) {
  * @returns {Array}  문제 배열
  */
 export function generateSession({ quizType, count = 10, folderId = null }) {
-  const exprs = prepareExpressions(count, folderId);
+  // 실제 문장 수보다 많은 문제 수 요청 시 자동 제한 (중복 방지)
+  const allExprs = getExpressions({ folder_id: folderId, includeBuiltin: true });
+  const safeCount = Math.min(count, allExprs.length);
+  const exprs = prepareExpressions(safeCount, folderId);
 
   if (!exprs.length) return [];
 
