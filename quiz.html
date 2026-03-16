@@ -595,7 +595,7 @@ function renderChunkScramble(el) {
 
   const badge   = `<div class="quiz-type-badge" style="background:#F0EEFF;color:var(--purple);">🧱 덩어리 조립</div>`;
   const krHtml  = currentQ.kr ? `<div class="quiz-kr">🇰🇷 ${currentQ.kr}</div>` : '';
-  const ttsBtn  = `<button class="tts-btn" onclick="speakText('${currentQ.sentence.replace(/'/g,"\\'")}')">🔊 듣기</button>`;
+  const ttsBtn  = `<button class="tts-btn" onclick="speakText('${currentQ.sentence.replace(/'/g,"\\'")}'  , this)">🔊 듣기</button>`;
 
   const answerArea = `<div class="chunk-answer-area" id="answerArea"><span style="color:var(--text-muted);font-size:12px;font-weight:700;">여기에 순서대로 배치하세요</span></div>`;
 
@@ -706,24 +706,18 @@ function renderListening(el) {
     </div>
     <div class="feedback-card" id="feedbackCard"></div>`;
 
-  // 자동 재생
-  setTimeout(() => playListen(), 400);
+  // 자동재생 제거 - 사용자가 직접 버튼 누르게 (지하철/공공장소 배려)
+  // 대신 버튼에 안내 텍스트 강조
 }
 
 window.playListen = function() {
-  const btn  = document.getElementById('listenBtn');
-  const text = currentQ.sentence;
-  const sets = getSettings();
-
-  if (!('speechSynthesis' in window)) { alert('TTS 미지원 브라우저'); return; }
-  speechSynthesis.cancel();
-
-  const u  = new SpeechSynthesisUtterance(text);
-  u.lang   = sets.tts_accent === 'uk' ? 'en-GB' : 'en-US';
-  u.rate   = sets.tts_speed ?? 0.85;
-  u.onstart = () => btn?.classList.add('playing');
-  u.onend   = () => btn?.classList.remove('playing');
-  speechSynthesis.speak(u);
+  const btn = document.getElementById('listenBtn');
+  // 재생 중이면 중복 클릭 무시
+  if (btn?.classList.contains('playing')) {
+    TTS.stop();
+    return;
+  }
+  TTS.speak(currentQ.sentence, btn);
 };
 
 window.placeWord = function(tileIdx, text, answerIdx) {
@@ -880,7 +874,9 @@ function showFeedback({ correct, feedback }) {
   if (!card) return;
 
   // ── 효과음 (Web Audio API) ──
-  playSound(correct);
+  // 무음 모드 체크
+  const _s = getSettings();
+  if (_s.sfx_volume !== 0) playSound(correct);
 
   // ── 현재 문장 데이터 가져오기 ──
   const expr = currentQ;
@@ -936,35 +932,50 @@ function showFeedback({ correct, feedback }) {
   }
 }
 
-// ── 효과음 ──
+// ── 효과음 (iOS/사파리 대응) ──
+let _audioCtx = null;
+
+function getAudioCtx() {
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  // 사파리: suspended 상태면 resume
+  if (_audioCtx.state === 'suspended') {
+    _audioCtx.resume();
+  }
+  return _audioCtx;
+}
+
+// 첫 터치 시 AudioContext 준비 (iOS 정책 대응)
+document.addEventListener('touchstart', () => {
+  try { getAudioCtx(); } catch(e) {}
+}, { once: true });
+
 function playSound(correct) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // 사파리: 사용자 제스처 후 resume 필요
-    if (ctx.state === 'suspended') ctx.resume();
-    const osc = ctx.createOscillator();
+    const ctx  = getAudioCtx();
+    const osc  = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
     if (correct) {
-      // 정답: 밝고 경쾌한 2음
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(523, ctx.currentTime);       // C5
-      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.12); // G5
+      osc.frequency.setValueAtTime(523, ctx.currentTime);
+      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.35);
     } else {
-      // 오답: 낮고 짧은 소리
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(200, ctx.currentTime);
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.setValueAtTime(180, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
       osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.25);
+      osc.stop(ctx.currentTime + 0.3);
     }
-  } catch(e) { /* 소리 안 나도 앱 동작에 영향 없음 */ }
+  } catch(e) { /* 소리 미지원 기기 무시 */ }
 }
 
 // ── 다음 문제 ──

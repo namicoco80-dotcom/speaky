@@ -557,6 +557,18 @@
     </div>
     <div class="card">
 
+      <!-- 무음 모드 -->
+      <div class="row" onclick="toggleSfx()">
+        <span class="row-icon">🔇</span>
+        <div class="row-body">
+          <div class="row-label">효과음</div>
+          <div class="row-desc" id="sfxDesc">켜짐</div>
+        </div>
+        <div class="row-right">
+          <button class="toggle on" id="sfxToggle"></button>
+        </div>
+      </div>
+
       <!-- 폰트 사이즈 -->
       <div class="row no-tap" style="flex-direction:column;align-items:flex-start;gap:10px;">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
@@ -1251,6 +1263,24 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW:', e));
 }
 
+
+
+window.toggleSfx = function() {
+  const current = getSettings().sfx_volume;
+  const newVal  = current === 0 ? 0.7 : 0;
+  updateSettings({ sfx_volume: newVal });
+  document.getElementById('sfxToggle').classList.toggle('on', newVal !== 0);
+  document.getElementById('sfxDesc').textContent = newVal !== 0 ? '켜짐' : '꺼짐 (무음)';
+};
+
+// 초기 효과음 상태
+(function() {
+  const vol = getSettings().sfx_volume ?? 0.7;
+  const toggle = document.getElementById('sfxToggle');
+  const desc   = document.getElementById('sfxDesc');
+  if (toggle) toggle.classList.toggle('on', vol !== 0);
+  if (desc)   desc.textContent = vol !== 0 ? '켜짐' : '꺼짐 (무음)';
+})();
 
 window.setFontSize = function(size, btn) {
   localStorage.setItem('speaky_font_size', size);
