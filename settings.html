@@ -1053,6 +1053,16 @@ window.selectAccent = function(acc) {
   document.getElementById('usBtn').classList.toggle('active', acc==='us');
   document.getElementById('ukBtn').classList.toggle('active', acc==='uk');
   updateSettings({ tts_accent: acc });
+
+  // 음성 팩 확인 후 안내
+  if ('speechSynthesis' in window) {
+    const lang    = acc === 'uk' ? 'en-GB' : 'en-US';
+    const voices  = speechSynthesis.getVoices();
+    const hasVoice = voices.some(v => v.lang.startsWith('en'));
+    if (!hasVoice) {
+      setTimeout(() => alert('⚠️ 영어 음성 팩이 없어요!\n폰 설정 → 일반 → 언어 및 입력 → TTS → 영어 음성 다운로드'), 300);
+    }
+  }
 };
 
 // ── 알림 ──

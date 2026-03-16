@@ -690,7 +690,9 @@ function renderListening(el) {
   placedChunks = [];
 
   const badge = `<div class="quiz-type-badge" style="background:#E0F7FA;color:var(--teal);">👂 리스닝 받아쓰기</div>`;
-  const playBtn = `<button class="listen-play-btn" id="listenBtn" onclick="playListen()">🔊 음성 듣기</button>`;
+  const sets = getSettings();
+  const speedLabel = sets.tts_speed <= 0.7 ? '🐢 느리게' : sets.tts_speed >= 1.2 ? '🐇 빠르게' : '🎵 보통';
+  const playBtn = `<button class="listen-play-btn" id="listenBtn" onclick="playListen()">🔊 음성 듣기 <span style="font-size:11px;opacity:0.8;">${speedLabel}</span></button>`;
 
   const wordTiles = currentQ.shuffled.map((w, i) =>
     `<div class="word-tile" id="wtile_${i}" onclick="placeWord(${i},'${w.en.replace(/'/g,"\\'")}',${w.idx})">${w.en}</div>`
@@ -1038,14 +1040,75 @@ window.goBack = function() {
 };
 
 // ── TTS ──
-window.speakText = function(text) {
-  if (!('speechSynthesis' in window)) return;
-  const sets = getSettings();
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang  = sets.tts_accent === 'uk' ? 'en-GB' : 'en-US';
-  u.rate  = sets.tts_speed ?? 1.0;
-  speechSynthesis.speak(u);
+// ── TTS 관리자 ──
+const TTS = {
+  _speaking: false,
+  _activeBtn: null,
+  _timer: null,
+
+  speak(text, btn) {
+    if (!('speechSynthesis' in window)) return;
+    const sets = getSettings();
+    const lang = sets.tts_accent === 'uk' ? 'en-GB' : 'en-US';
+    const rate = Number(sets.tts_speed) || 0.85;
+
+    this.stop();
+
+    const doSpeak = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang   = lang;
+      u.rate   = rate;
+      u.volume = 1.0;
+
+      // 5. 언어에 맞는 음성 선택 (한국어 억양 방지)
+      const voices = speechSynthesis.getVoices();
+      const voice  = voices.find(v => v.lang === lang)
+                  ?? voices.find(v => v.lang.startsWith(lang.split('-')[0]) && !v.lang.startsWith('ko'))
+                  ?? null;
+      if (voice) u.voice = voice;
+
+      if (btn) { btn.classList.add('playing'); this._activeBtn = btn; }
+      this._speaking = true;
+
+      // 7. onend 미발화 대비 타임아웃 (텍스트 길이 기반)
+      const ms = Math.max(3000, text.length * (rate < 0.8 ? 160 : 120));
+      this._timer = setTimeout(() => this._cleanup(), ms);
+
+      u.onend  = () => this._cleanup();
+      u.onerror = () => this._cleanup();
+      speechSynthesis.speak(u);
+    };
+
+    // 1. 음성 목록 로딩 대기 (TTS 소리 안 나는 문제 해결)
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      doSpeak();
+    } else {
+      speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+      setTimeout(() => { if (!this._speaking) doSpeak(); }, 600);
+    }
+  },
+
+  stop() {
+    clearTimeout(this._timer);
+    speechSynthesis.cancel();
+    this._cleanup();
+  },
+
+  _cleanup() {
+    clearTimeout(this._timer);
+    this._speaking = false;
+    if (this._activeBtn) {
+      this._activeBtn.classList.remove('playing');
+      this._activeBtn = null;
+    }
+  }
+};
+
+window.speakText = function(text, btn) {
+  // 6. 재생 중 클릭 시 정지 (중복 재생 방지)
+  if (TTS._speaking) { TTS.stop(); return; }
+  TTS.speak(text, btn);
 };
 </script>
 
